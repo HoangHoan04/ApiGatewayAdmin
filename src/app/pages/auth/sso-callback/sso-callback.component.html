@@ -1,0 +1,23 @@
+<div class="sso-callback-card">
+  @if (loading) {
+    <div class="callback-loading">
+      <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+      <h3 class="loading-title">Đang xác thực phiên làm việc...</h3>
+      <p class="loading-desc">
+        Hệ thống đang thiết lập kết nối an toàn với Cổng Xác Thực Tập Trung (Central Auth). Vui lòng đợi trong giây lát.
+      </p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="callback-error">
+      <div class="error-icon">
+        <span nz-icon nzType="close-circle" nzTheme="fill"></span>
+      </div>
+      <h3 class="error-title">Xác thực không thành công</h3>
+      <p class="error-desc">{{ errorMessage }}</p>
+      <button nz-button nzType="primary" (click)="retryLogin()" class="retry-btn">
+        <span nz-icon nzType="reload" nzTheme="outline"></span>
+        Quay lại trang Đăng nhập
+      </button>
+    </div>
+  }
+</div>

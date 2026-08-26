@@ -1,0 +1,99 @@
+<nz-header class="admin-navbar">
+  <div class="navbar-left">
+    <button
+      class="navbar-toggle"
+      nz-icon
+      [nzType]="collapsed ? 'menu-unfold' : 'menu-fold'"
+      nzTheme="outline"
+      (click)="toggleSidebar()"
+    ></button>
+    <app-breadcrumb></app-breadcrumb>
+  </div>
+  <div class="navbar-right">
+    <app-search-box></app-search-box>
+    <app-navbar-notification></app-navbar-notification>
+    <app-toggle-theme></app-toggle-theme>
+    <app-fullscreen></app-fullscreen>
+    <button
+      class="navbar-action"
+      nz-icon
+      nzType="setting"
+      nzTheme="outline"
+      (click)="openSettings()"
+    ></button>
+    <div class="user-dropdown" nz-dropdown [nzDropdownMenu]="userMenu">
+      <nz-avatar [nzText]="avatarText || 'US'" class="user-avatar"></nz-avatar>
+    </div>
+    <nz-dropdown-menu #userMenu="nzDropdownMenu">
+      <ul nz-menu>
+        <li nz-menu-item disabled>
+          <strong>{{ username }}</strong
+          ><br />
+          <small>{{ email }}</small>
+        </li>
+        <li nz-menu-divider></li>
+        <li nz-menu-item (click)="openChangePasswordModal()">
+          <span nz-icon nzType="key" nzTheme="outline"></span>
+          Đổi mật khẩu
+        </li>
+        <li nz-menu-divider></li>
+        <li nz-menu-item class="text-danger" (click)="logout()">
+          <span nz-icon nzType="logout" nzTheme="outline"></span> Đăng xuất
+        </li>
+      </ul>
+    </nz-dropdown-menu>
+  </div>
+</nz-header>
+
+<nz-modal
+  [(nzVisible)]="changePasswordVisible"
+  nzTitle="Đổi mật khẩu tài khoản"
+  (nzOnCancel)="closeChangePasswordModal()"
+  (nzOnOk)="submitChangePassword()"
+  [nzOkLoading]="changePasswordLoading"
+  nzWidth="480px"
+  [nzCentered]="true"
+>
+  <ng-container *nzModalContent>
+    @if (changePasswordError) {
+      <div
+        style="margin-bottom: 16px; color: #ff4d4f; display: flex; align-items: center; gap: 8px"
+      >
+        <span nz-icon nzType="close-circle" nzTheme="fill"></span>
+        <span>{{ changePasswordError }}</span>
+      </div>
+    }
+
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div>
+        <label style="font-weight: 600; display: block; margin-bottom: 6px">Mật khẩu hiện tại</label>
+        <input
+          nz-input
+          type="password"
+          [(ngModel)]="oldPassword"
+          placeholder="Nhập mật khẩu hiện tại"
+        />
+      </div>
+
+      <div>
+        <label style="font-weight: 600; display: block; margin-bottom: 6px">Mật khẩu mới</label>
+        <input
+          nz-input
+          type="password"
+          [(ngModel)]="newPassword"
+          placeholder="Tối thiểu 6 ký tự"
+        />
+      </div>
+
+      <div>
+        <label style="font-weight: 600; display: block; margin-bottom: 6px">Xác nhận mật khẩu mới</label>
+        <input
+          nz-input
+          type="password"
+          [(ngModel)]="confirmPassword"
+          placeholder="Nhập lại mật khẩu mới"
+        />
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>

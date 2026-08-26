@@ -1,0 +1,88 @@
+<div
+  class="navbar-notification"
+  nz-popover
+  [nzPopoverTitle]="popoverTitle"
+  [nzPopoverContent]="popoverContent"
+  [nzPopoverTrigger]="'click'"
+  [nzPopoverPlacement]="'bottomRight'"
+  [nzPopoverOverlayClassName]="'notification-popover-panel'"
+  [(nzPopoverVisible)]="popoverVisible"
+  (nzPopoverVisibleChange)="onVisibleChange($event)"
+>
+  <nz-badge [nzCount]="unreadCount" [nzOverflowCount]="99" [nzOffset]="[-2, 6]">
+    <button class="navbar-action-btn" nz-button nzType="text">
+      <span nz-icon nzType="bell" nzTheme="outline" class="bell-icon"></span>
+    </button>
+  </nz-badge>
+</div>
+
+<ng-template #popoverTitle>
+  <div class="notification-header">
+    <div class="header-left">
+      <span class="header-title">Thông báo hệ thống</span>
+      @if (unreadCount > 0) {
+        <span class="unread-pill">{{ unreadCount }}</span>
+      }
+    </div>
+    @if (unreadCount > 0) {
+      <button nz-button nzType="text" nzSize="small" class="mark-all-btn" (click)="markAllAsRead()">
+        Đánh dấu tất cả là đã đọc
+      </button>
+    }
+  </div>
+</ng-template>
+
+<ng-template #popoverContent>
+  <div class="notification-body">
+    @if (loading) {
+      <div class="loading-wrapper">
+        <nz-spin nzSimple></nz-spin>
+      </div>
+    } @else if (notifications.length === 0) {
+      <div class="empty-wrapper">
+        <nz-empty
+          [nzNotFoundImage]="'simple'"
+          nzNotFoundContent="Không có thông báo nào"
+        ></nz-empty>
+      </div>
+    } @else {
+      <div class="notification-list">
+        @for (item of notifications; track item.id) {
+          <div
+            class="notification-item"
+            [class.unread]="!item.isRead"
+            (click)="onNotificationClick(item)"
+          >
+            <div
+              class="item-icon-wrapper"
+              [style.background-color]="getTypeColor(item.type, item.severity) + '15'"
+              [style.color]="getTypeColor(item.type, item.severity)"
+            >
+              <span nz-icon [nzType]="getTypeIcon(item.type)" nzTheme="outline"></span>
+            </div>
+            <div class="item-content">
+              <div class="item-title">{{ item.title }}</div>
+              <div class="item-desc">{{ item.content }}</div>
+              <div class="item-meta">
+                <span class="item-time">{{ getRelativeTime(item.createdAt) }}</span>
+                @if (item.isBroadcast) {
+                  <span class="broadcast-tag">Toàn hệ thống</span>
+                }
+              </div>
+            </div>
+            @if (!item.isRead) {
+              <div class="unread-dot"></div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <div class="notification-footer">
+      <button nz-button nzType="link" nzBlock (click)="viewAll()">
+        Xem tất cả
+        <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+      </button>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,101 @@
+<ng-template #actionTypeTpl let-rowData>
+  @if (getActionTypeMeta(rowData.actionType); as action) {
+    <span
+      class="action-type-tag"
+      [style.background-color]="action.color + '20'"
+      [style.color]="action.color"
+      [style.border-color]="action.color + '40'"
+    >
+      {{ getActionTypeLabel(rowData.actionType) }}
+    </span>
+  } @else {
+    <span class="action-type-tag action-type-tag-default">
+      {{ getActionTypeLabel(rowData.actionType) }}
+    </span>
+  }
+</ng-template>
+
+@if (resolvedEntityId) {
+  <div class="action-log-container">
+    @if (title) {
+      <h3 class="action-log-title">{{ title }}</h3>
+    }
+
+    <app-table-custom
+      [id]="'action-log-' + resolvedEntityName + '-' + resolvedEntityId"
+      [data]="logs"
+      [columns]="columns"
+      [loading]="loading"
+      [pagination]="pagination"
+      [rowActions]="rowActions"
+      [stripedRows]="true"
+      [showGridlines]="true"
+      [toolbar]="{ show: false }"
+      emptyText="Chưa có nhật ký thay đổi"
+      (pageChange)="onPageChange($event)"
+      (refresh)="loadLogs()"
+    ></app-table-custom>
+  </div>
+}
+
+<nz-modal
+  [(nzVisible)]="modalVisible"
+  nzTitle="Chi tiết nhật ký hoạt động"
+  (nzOnCancel)="closeModal()"
+  [nzFooter]="modalFooter"
+  nzWidth="960px"
+  [nzCentered]="true"
+  class="action-log-modal"
+>
+  <ng-container *nzModalContent>
+    @if (selectedLog) {
+      <div class="modal-log-summary">
+        <p>
+          <strong>Người thực hiện:</strong>
+          {{ selectedLog.createdByName }} ({{ selectedLog.createdByCode }})
+        </p>
+        <p>
+          <strong>Thời gian:</strong>
+          {{ selectedLog.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+        </p>
+        <p>
+          <strong>Hành động:</strong>
+          {{ getActionTypeLabel(selectedLog.actionType) }}
+        </p>
+        @if (selectedLog.createdNote) {
+          <p>
+            <strong>Ghi chú:</strong> {{ selectedLog.createdNote }}
+          </p>
+        }
+      </div>
+
+      <div class="json-diff-grid">
+        <div class="json-panel json-panel-old">
+          <h4>
+            <span nz-icon nzType="history" nzTheme="outline"></span>
+            Dữ liệu trước thay đổi
+          </h4>
+          <pre>{{
+            formatJsonValue(selectedLog.oldValueObj, 'Không có dữ liệu cũ')
+          }}</pre>
+        </div>
+
+        <div class="json-panel json-panel-new">
+          <h4>
+            <span nz-icon nzType="history" nzTheme="outline"></span>
+            Dữ liệu sau thay đổi
+          </h4>
+          <pre>{{
+            formatJsonValue(selectedLog.newValueObj, 'Không có dữ liệu mới')
+          }}</pre>
+        </div>
+      </div>
+    }
+  </ng-container>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" (click)="closeModal()">
+      Đóng
+    </button>
+  </ng-template>
+</nz-modal>

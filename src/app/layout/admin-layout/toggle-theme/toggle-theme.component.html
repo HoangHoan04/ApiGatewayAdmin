@@ -1,0 +1,64 @@
+<div class="tt-wrapper">
+  <button
+    class="navbar-action tt-btn"
+    [class.tt-btn--light]="theme === 'light'"
+    [class.tt-btn--dark]="theme === 'dark'"
+    [class.tt-btn--system]="theme === 'system'"
+    (click)="cycleTheme()"
+    [attr.aria-label]="'Đổi chủ đề: ' + themeLabel"
+  >
+    <span class="tt-icon-wrap">
+      <span
+        class="tt-icon tt-icon--sun"
+        [class.tt-icon--active]="theme === 'light'"
+        nz-icon
+        nzType="sun"
+        nzTheme="outline"
+      ></span>
+      <span
+        class="tt-icon tt-icon--moon"
+        [class.tt-icon--active]="theme === 'dark'"
+        nz-icon
+        nzType="moon"
+        nzTheme="outline"
+      ></span>
+      <span
+        class="tt-icon tt-icon--sys"
+        [class.tt-icon--active]="theme === 'system'"
+        nz-icon
+        nzType="desktop"
+        nzTheme="outline"
+      ></span>
+    </span>
+  </button>
+
+  <div class="tt-tooltip">
+    <span class="tt-tooltip__label">Đổi chủ đề</span>
+    <span
+      class="tt-tooltip__badge"
+      [class.tt-tooltip__badge--light]="theme === 'light'"
+      [class.tt-tooltip__badge--dark]="theme === 'dark'"
+      [class.tt-tooltip__badge--system]="theme === 'system'"
+      >{{ themeLabel }}</span
+    >
+  </div>
+</div>
+
+@if (animating && nextTheme) {
+  <div class="tt-overlay" (animationend)="onOverlayAnimEnd()">
+    <div class="tt-panel tt-panel-left"></div>
+    <div class="tt-panel tt-panel-right"></div>
+    <div class="tt-rocket tt-rocket-left">
+      <span nz-icon nzType="rocket" nzTheme="fill"></span>
+    </div>
+    <div class="tt-rocket tt-rocket-right">
+      <span nz-icon nzType="rocket" nzTheme="fill"></span>
+    </div>
+    <div class="tt-explosion">
+      <div class="tt-shockwave"></div>
+      @for (p of [1, 2, 3, 4, 5, 6, 7, 8]; track $index) {
+        <div class="tt-particle"></div>
+      }
+    </div>
+  </div>
+}

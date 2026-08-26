@@ -1,0 +1,8 @@
+<nz-footer class="admin-footer">
+  <span>© {{ currentYear }} {{ s.companyName }}. All rights reserved.</span>
+  @if (s.icpLink) {
+    <a class="footer-icp" [href]="s.icpLink" target="_blank" rel="noopener">{{ s.icpNumber }}</a>
+  } @else {
+    <span class="footer-icp">{{ s.icpNumber }}</span>
+  }
+</nz-footer>

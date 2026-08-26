@@ -1,0 +1,177 @@
+<div class="excel-import-modal-container">
+  <div class="file-summary-card">
+    <div class="file-summary-left">
+      <div class="file-icon-wrap">
+        <span nz-icon nzType="file-excel" nzTheme="fill" class="excel-icon"></span>
+      </div>
+      <div class="file-details">
+        <div class="file-name" [title]="file.name">{{ file.name }}</div>
+        <div class="file-meta">
+          <span class="meta-tag"><span nz-icon nzType="hdd"></span> {{ fileSizeFormatted }}</span>
+          @if (!parsing && !parseError) {
+            <span class="meta-tag highlight">
+              <span nz-icon nzType="table"></span> {{ totalRows }} dòng dữ liệu
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (sheetNames.length > 1) {
+      <div class="file-summary-right">
+        <span class="sheet-label">Trang tính:</span>
+        <nz-select
+          [(ngModel)]="selectedSheet"
+          (ngModelChange)="onSheetChange($event)"
+          [disabled]="importing"
+          nzSize="small"
+          style="min-width: 160px"
+        >
+          @for (s of sheetNames; track s) {
+            <nz-option [nzValue]="s" [nzLabel]="s"></nz-option>
+          }
+        </nz-select>
+      </div>
+    }
+  </div>
+
+  @if (parsing) {
+    <div class="state-loading-wrap">
+      <nz-spin nzSimple nzTip="Đang phân tích cấu trúc file Excel..."></nz-spin>
+    </div>
+  }
+
+  @if (!parsing && parseError) {
+    <div class="state-error-wrap">
+      <nz-alert
+        nzType="error"
+        nzShowIcon
+        [nzMessage]="'Lỗi đọc file Excel'"
+        [nzDescription]="parseError"
+      ></nz-alert>
+    </div>
+  }
+
+  @if (!parsing && !parseError) {
+    @if (importing || importCompleted) {
+      <div class="import-progress-section">
+        <div class="progress-header">
+          <div class="progress-title">
+            <span
+              nz-icon
+              [nzType]="importCompleted ? 'check-circle' : 'loading'"
+              [class.text-success]="importCompleted"
+            ></span>
+            <span>{{ progressStatusMessage }}</span>
+          </div>
+          <span class="progress-percent-badge">{{ progressPercent }}%</span>
+        </div>
+
+        <nz-progress
+          [nzPercent]="progressPercent"
+          [nzStatus]="
+            importCompleted ? (importResult?.errorCount ? 'exception' : 'success') : 'active'
+          "
+          [nzStrokeColor]="
+            importCompleted
+              ? importResult?.errorCount
+                ? '#faad14'
+                : '#52c41a'
+              : { '0%': '#108ee9', '100%': '#87d068' }
+          "
+        ></nz-progress>
+      </div>
+    }
+
+    @if (importCompleted && importResult) {
+      <div class="import-result-section">
+        <div class="result-stats-row">
+          <div class="stat-card total">
+            <div class="stat-num">{{ importResult.totalRows }}</div>
+            <div class="stat-lbl">Tổng dòng</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-num">{{ importResult.successCount }}</div>
+            <div class="stat-lbl">Thành công</div>
+          </div>
+          <div class="stat-card error" [class.has-error]="importResult.errorCount > 0">
+            <div class="stat-num">{{ importResult.errorCount }}</div>
+            <div class="stat-lbl">Lỗi / Bỏ qua</div>
+          </div>
+        </div>
+
+        @if (importResult.errors.length) {
+          <div class="errors-box">
+            <div class="errors-box-header">
+              <span class="errors-title">
+                <span nz-icon nzType="warning" nzTheme="fill" class="text-warning"></span>
+                Chi tiết các dòng bị lỗi ({{ importResult.errors.length }}):
+              </span>
+              <button nz-button nzSize="small" nzType="default" (click)="copyErrors()">
+                <span nz-icon nzType="copy"></span> Sao chép lỗi
+              </button>
+            </div>
+            <div class="errors-list">
+              @for (err of importResult.errors; track $index) {
+                <div class="error-item">
+                  <span nz-icon nzType="close-circle" class="error-icon"></span>
+                  <span class="error-text">{{ err }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (!importCompleted) {
+      <div class="preview-section">
+        <div class="preview-header">
+          <div class="preview-title">
+            <span nz-icon nzType="eye"></span>
+            <span
+              >Xem trước dữ liệu (Trang tính: <strong>{{ selectedSheet }}</strong> -
+              {{ totalRows }} dòng)</span
+            >
+          </div>
+          <div class="preview-note">* Dòng đầu tiên trong file được nhận dạng làm tiêu đề cột</div>
+        </div>
+
+        <div class="table-preview-wrapper">
+          <app-table-custom
+            [id]="'excel-import-preview-' + selectedSheet"
+            [data]="previewRows"
+            [columns]="tableColumns"
+            [pagination]="paginationConfig"
+            [showIndexList]="true"
+            [stripedRows]="true"
+            [showGridlines]="true"
+            size="small"
+            (pageChange)="onTablePageChange($event)"
+          ></app-table-custom>
+        </div>
+      </div>
+    }
+  }
+
+  <div class="modal-footer-actions">
+    <button nz-button nzType="default" (click)="closeModal()" [disabled]="importing">
+      {{ importCompleted ? 'Đóng' : 'Hủy bỏ' }}
+    </button>
+
+    @if (!importCompleted) {
+      <button
+        nz-button
+        nzType="primary"
+        [nzLoading]="importing"
+        [disabled]="parsing || !!parseError || totalRows === 0"
+        (click)="confirmImport()"
+      >
+        @if (!importing) {
+          <span nz-icon nzType="cloud-upload"></span>
+        }
+        <span>Xác nhận nhập dữ liệu ({{ totalRows }} dòng)</span>
+      </button>
+    }
+  </div>
+</div>

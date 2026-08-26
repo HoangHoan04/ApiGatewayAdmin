@@ -1,0 +1,185 @@
+@if (config?.show !== false) {
+  <div class="filter-custom-container">
+    <div class="filter-header" [class.collapsible]="collapsible" (click)="toggleOpen()">
+      <div class="filter-header-left">
+        <span nz-icon nzType="filter" nzTheme="outline" class="filter-header-icon"></span>
+        <span class="filter-title">{{ title || 'Bộ lọc tìm kiếm' }}</span>
+        @if (headerLeftContent) {
+          <ng-container *ngTemplateOutlet="headerLeftContent"></ng-container>
+        }
+      </div>
+
+      <div class="filter-header-right">
+        @if (headerRightContent) {
+          <ng-container *ngTemplateOutlet="headerRightContent"></ng-container>
+        }
+        @if (collapsible) {
+          <span
+            nz-icon
+            [nzType]="open ? 'up' : 'down'"
+            nzTheme="outline"
+            class="filter-toggle-icon"
+          ></span>
+        }
+      </div>
+    </div>
+
+  @if (open) {
+    <div class="filter-body">
+      <div nz-row [nzGutter]="gutter">
+        @for (field of visibleFields; track field.key) {
+          <div nz-col [nzSpan]="field.col || 6" [ngClass]="field.colClassName" class="filter-col">
+            <div class="filter-item" [ngStyle]="field.style">
+              <label class="filter-label">{{ field.label }}</label>
+
+              @switch (field.type) {
+                @case ('input') {
+                  <input
+                    nz-input
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [placeholder]="field.placeholder || 'Nhập ' + field.label"
+                    [disabled]="isFieldDisabled(field)"
+                  />
+                }
+
+                @case ('textarea') {
+                  <textarea
+                    nz-input
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [nzAutosize]="{ minRows: 3 }"
+                    [placeholder]="field.placeholder || 'Nhập ' + field.label"
+                    [disabled]="isFieldDisabled(field)"
+                  ></textarea>
+                }
+
+                @case ('number') {
+                  <input
+                    nz-input
+                    type="number"
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [placeholder]="field.placeholder || 'Nhập ' + field.label"
+                    [disabled]="isFieldDisabled(field)"
+                  />
+                }
+
+                @case ('select') {
+                  <nz-select
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [nzPlaceHolder]="field.placeholder || 'Chọn ' + field.label"
+                    [disabled]="isFieldDisabled(field)"
+                    [nzAllowClear]="field.allowClear !== false"
+                  >
+                    @for (opt of field.options; track opt.value) {
+                      <nz-option [nzValue]="opt.value" [nzLabel]="getOptionLabel(opt)"></nz-option>
+                    }
+                  </nz-select>
+                }
+
+                @case ('multiSelect') {
+                  <nz-select
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [nzPlaceHolder]="field.placeholder || 'Chọn ' + field.label"
+                    [disabled]="isFieldDisabled(field)"
+                    nzMode="multiple"
+                    [nzAllowClear]="field.allowClear !== false"
+                  >
+                    @for (opt of field.options; track opt.value) {
+                      <nz-option [nzValue]="opt.value" [nzLabel]="getOptionLabel(opt)"></nz-option>
+                    }
+                  </nz-select>
+                }
+
+                @case ('switch') {
+                  <nz-switch
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [disabled]="isFieldDisabled(field)"
+                  ></nz-switch>
+                }
+
+                @case ('date') {
+                  <nz-date-picker
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [nzPlaceHolder]="field.placeholder || 'Chọn ngày'"
+                    [disabled]="isFieldDisabled(field)"
+                    nzFormat="dd/MM/yyyy"
+                  ></nz-date-picker>
+                }
+
+                @case ('dateRange') {
+                  <nz-range-picker
+                    [ngModel]="filters[field.key]"
+                    (ngModelChange)="onFilterChange(field.key, $event)"
+                    [nzPlaceHolder]="[
+                      field.placeholder || 'Từ ngày',
+                      field.placeholder || 'Đến ngày',
+                    ]"
+                    [disabled]="isFieldDisabled(field)"
+                    nzFormat="dd/MM/yyyy"
+                  ></nz-range-picker>
+                }
+
+                @case ('customButton') {
+                  <button
+                    nz-button
+                    nzType="default"
+                    (click)="field.onClick?.()"
+                    [disabled]="isFieldDisabled(field)"
+                  >
+                    {{ field.buttonText || field.label }}
+                  </button>
+                }
+
+                @case ('custom') {
+                  @if (field.body) {
+                    <ng-container
+                      *ngTemplateOutlet="field.body; context: getFieldContext(field)"
+                    ></ng-container>
+                  } @else if (customTemplates && customTemplates[field.key]) {
+                    <ng-container
+                      *ngTemplateOutlet="
+                        customTemplates[field.key];
+                        context: getFieldContext(field)
+                      "
+                    ></ng-container>
+                  } @else {
+                    <div class="filter-empty-template">Không có mẫu hiển thị tùy chỉnh</div>
+                  }
+                }
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (hasActions) {
+        <div class="filter-actions" [ngClass]="'align-' + actionsAlign">
+          @for (action of filterActions; track action.key) {
+            @if (isActionVisible(action)) {
+              <button
+                nz-button
+                [nzLoading]="action.loading"
+                [disabled]="isActionDisabled(action)"
+                (click)="handleActionClick(action)"
+                class="filter-action-btn"
+                [ngClass]="getActionSeverityClass(action)"
+              >
+                @if (action.icon) {
+                  <span nz-icon [nzType]="action.icon" nzTheme="outline"></span>
+                }
+                <span>{{ action.label }}</span>
+              </button>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+}

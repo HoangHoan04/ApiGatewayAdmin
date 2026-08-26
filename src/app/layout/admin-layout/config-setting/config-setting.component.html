@@ -1,0 +1,568 @@
+<nz-drawer
+  [nzVisible]="configOpen"
+  (nzVisibleChange)="onVisibleChange($event)"
+  [nzPlacement]="s.configPosition"
+  [nzWidth]="500"
+  [nzClosable]="false"
+  (nzOnClose)="close()"
+  [nzMaskClosable]="true"
+>
+  <div class="config-drawer" *nzDrawerContent>
+    <div class="config-header">
+      <span nz-icon nzType="setting" nzTheme="outline" class="config-header-icon"></span>
+      <span class="config-header-title">Thiết lập hệ thống</span>
+    </div>
+
+    <div class="config-body">
+      <section class="config-section">
+        <h4 class="config-section-title">Cài đặt chung</h4>
+
+        <div class="config-row">
+          <span class="config-label">Tiêu đề động</span>
+          <nz-switch
+            [(ngModel)]="s.dynamicTitle"
+            (ngModelChange)="update({ dynamicTitle: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Quay lại đầu trang</span>
+          <nz-switch
+            [(ngModel)]="s.backToTop"
+            (ngModelChange)="update({ backToTop: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Watermark</span>
+          <nz-switch
+            [(ngModel)]="s.watermark"
+            (ngModelChange)="update({ watermark: $event })"
+          ></nz-switch>
+        </div>
+
+        @if (s.watermark) {
+          <div class="config-sub">
+            <span class="config-label config-label--sub">Nội dung Watermark</span>
+            <input
+              nz-input
+              [(ngModel)]="s.watermarkText"
+              (ngModelChange)="update({ watermarkText: $event })"
+              class="config-input"
+            />
+          </div>
+        }
+      </section>
+
+      <nz-divider></nz-divider>
+
+      <section class="config-section">
+        <h4 class="config-section-title">Giao diện</h4>
+
+        <div class="config-row">
+          <span class="config-label">Chủ đề</span>
+          <nz-select
+            [(ngModel)]="s.theme"
+            (ngModelChange)="update({ theme: $event })"
+            style="width: 200px"
+          >
+            <nz-option nzValue="light" nzLabel="Theme Sáng"></nz-option>
+            <nz-option nzValue="dark" nzLabel="Theme Tối"></nz-option>
+            <nz-option nzValue="system" nzLabel="Theme Hệ thống"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Chế độ mù màu</span>
+          <nz-switch
+            [(ngModel)]="s.colorBlind"
+            (ngModelChange)="update({ colorBlind: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Chế độ xám</span>
+          <nz-switch
+            [(ngModel)]="s.grayscale"
+            (ngModelChange)="update({ grayscale: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row config-row--col">
+          <span class="config-label">Bo viền ({{ s.borderRadius }}px)</span>
+          <nz-slider
+            [(ngModel)]="s.borderRadius"
+            (ngModelChange)="update({ borderRadius: $event })"
+            [nzMin]="0"
+            [nzMax]="24"
+            [nzStep]="2"
+          ></nz-slider>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Phông chữ</span>
+          <nz-select
+            [(ngModel)]="s.fontFamily"
+            (ngModelChange)="update({ fontFamily: $event })"
+            style="width: 200px"
+          >
+            @for (f of fontFamilies; track $index) {
+              <nz-option [nzValue]="f" [nzLabel]="f"></nz-option>
+            }
+          </nz-select>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Độ đậm của chữ</span>
+          <nz-select
+            [(ngModel)]="s.fontWeight"
+            (ngModelChange)="update({ fontWeight: $event })"
+            style="width: 200px"
+          >
+            <nz-option nzValue="light" nzLabel="Mảnh"></nz-option>
+            <nz-option nzValue="normal" nzLabel="Bình thường"></nz-option>
+            <nz-option nzValue="medium" nzLabel="Vừa"></nz-option>
+            <nz-option nzValue="semibold" nzLabel="Đậm vừa"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="config-row config-row--col">
+          <span class="config-label">Cỡ chữ tiêu đề ({{ s.titleSize }}px)</span>
+          <nz-slider
+            [(ngModel)]="s.titleSize"
+            (ngModelChange)="update({ titleSize: $event })"
+            [nzMin]="14"
+            [nzMax]="32"
+          ></nz-slider>
+        </div>
+
+        <div class="config-row config-row--col">
+          <span class="config-label">Cỡ chữ nội dung ({{ s.bodySize }}px)</span>
+          <nz-slider
+            [(ngModel)]="s.bodySize"
+            (ngModelChange)="update({ bodySize: $event })"
+            [nzMin]="12"
+            [nzMax]="20"
+          ></nz-slider>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Chữ đậm</span>
+          <nz-switch
+            [(ngModel)]="s.boldText"
+            (ngModelChange)="update({ boldText: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Chữ nghiêng</span>
+          <nz-switch
+            [(ngModel)]="s.italicText"
+            (ngModelChange)="update({ italicText: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Chữ in hoa</span>
+          <nz-switch
+            [(ngModel)]="s.uppercaseText"
+            (ngModelChange)="update({ uppercaseText: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-color-picker">
+          <span class="config-label">Màu chủ đạo</span>
+          <div class="color-grid">
+            @for (c of primaryColors; track $index) {
+              <button
+                class="color-swatch"
+                [class.active]="s.primaryColor === c.value"
+                [style.background]="c.value"
+                [attr.title]="colorLabel(c.name)"
+                (click)="update({ primaryColor: c.value })"
+              >
+                @if (s.primaryColor === c.value) {
+                  <span class="color-dot"></span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="config-color-section">
+          <div class="config-row">
+            <span class="config-label">Màu thanh điều hướng</span>
+            <nz-select
+              [(ngModel)]="s.navbarColorType"
+              (ngModelChange)="update({ navbarColorType: $event })"
+              style="width: 200px"
+            >
+              <nz-option nzValue="solid" nzLabel="Màu đơn sắc"></nz-option>
+              <nz-option nzValue="gradient" nzLabel="Màu gradient"></nz-option>
+            </nz-select>
+          </div>
+          @for (mode of ['light', 'dark']; track $index) {
+            <div class="config-sub">
+              <span class="config-label config-label--sub">{{
+                mode === 'light' ? 'Chế độ sáng' : 'Chế độ tối'
+              }}</span>
+              <div class="color-grid">
+                @for (color of navbarPalette(mode); track $index) {
+                  <button
+                    class="color-swatch"
+                    [class.active]="
+                      (mode === 'light' ? s.navbarColorLight : s.navbarColorDark) === color
+                    "
+                    [style.background]="color"
+                    (click)="
+                      mode === 'light'
+                        ? update({ navbarColorLight: color })
+                        : update({ navbarColorDark: color })
+                    "
+                  >
+                    @if ((mode === 'light' ? s.navbarColorLight : s.navbarColorDark) === color) {
+                      <span class="color-dot" [class.color-dot--dark]="mode === 'dark'"></span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="config-color-section">
+          <div class="config-row">
+            <span class="config-label">Màu thanh bên</span>
+            <nz-select
+              [(ngModel)]="s.sidebarColorType"
+              (ngModelChange)="update({ sidebarColorType: $event })"
+              style="width: 200px"
+            >
+              <nz-option nzValue="solid" nzLabel="Màu đơn sắc"></nz-option>
+              <nz-option nzValue="gradient" nzLabel="Màu gradient"></nz-option>
+            </nz-select>
+          </div>
+          @for (mode of ['light', 'dark']; track $index) {
+            <div class="config-sub">
+              <span class="config-label config-label--sub">{{
+                mode === 'light' ? 'Chế độ sáng' : 'Chế độ tối'
+              }}</span>
+              <div class="color-grid">
+                @for (color of sidebarPalette(mode); track $index) {
+                  <button
+                    class="color-swatch"
+                    [class.active]="
+                      (mode === 'light' ? s.sidebarColorLight : s.sidebarColorDark) === color
+                    "
+                    [style.background]="color"
+                    (click)="
+                      mode === 'light'
+                        ? update({ sidebarColorLight: color })
+                        : update({ sidebarColorDark: color })
+                    "
+                  >
+                    @if ((mode === 'light' ? s.sidebarColorLight : s.sidebarColorDark) === color) {
+                      <span class="color-dot" [class.color-dot--dark]="mode === 'dark'"></span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <nz-divider></nz-divider>
+
+      <section class="config-section">
+        <h4 class="config-section-title">Bố cục</h4>
+
+        <div class="config-row">
+          <span class="config-label">Kiểu bố cục</span>
+          <nz-select
+            [(ngModel)]="s.layoutMode"
+            (ngModelChange)="update({ layoutMode: $event })"
+            style="width: 200px"
+          >
+            @for (m of layoutModes; track m.value) {
+              <nz-option [nzValue]="m.value" [nzLabel]="m.label"></nz-option>
+            }
+          </nz-select>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Vị trí thanh bên</span>
+          <nz-select
+            [(ngModel)]="s.sidebarPosition"
+            (ngModelChange)="update({ sidebarPosition: $event })"
+            style="width: 200px"
+          >
+            <nz-option nzValue="left" nzLabel="Bên trái"></nz-option>
+            <nz-option nzValue="right" nzLabel="Bên phải"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Vị trí bảng cấu hình</span>
+          <nz-select
+            [(ngModel)]="s.configPosition"
+            (ngModelChange)="update({ configPosition: $event })"
+            style="width: 200px"
+          >
+            <nz-option nzValue="left" nzLabel="Bên trái"></nz-option>
+            <nz-option nzValue="right" nzLabel="Bên phải"></nz-option>
+          </nz-select>
+        </div>
+      </section>
+
+      <nz-divider></nz-divider>
+
+      <section class="config-section">
+        <h4 class="config-section-title">Thanh bên</h4>
+
+        <div class="config-row">
+          <span class="config-label">Hiện thanh bên</span>
+          <nz-switch
+            [(ngModel)]="s.showSidebar"
+            (ngModelChange)="update({ showSidebar: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Thu gọn thanh bên</span>
+          <nz-switch
+            [(ngModel)]="s.collapseSidebar"
+            (ngModelChange)="update({ collapseSidebar: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row config-row--col">
+          <span class="config-label">Độ rộng thanh bên ({{ s.sidebarWidth }}px)</span>
+          <nz-slider
+            [(ngModel)]="s.sidebarWidth"
+            (ngModelChange)="update({ sidebarWidth: $event })"
+            [nzMin]="200"
+            [nzMax]="320"
+          ></nz-slider>
+        </div>
+
+        <div class="config-row config-row--col">
+          <span class="config-label">Độ rộng khi thu gọn ({{ s.sidebarCollapsedWidth }}px)</span>
+          <nz-slider
+            [(ngModel)]="s.sidebarCollapsedWidth"
+            (ngModelChange)="update({ sidebarCollapsedWidth: $event })"
+            [nzMin]="60"
+            [nzMax]="100"
+          ></nz-slider>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Menu dạng accordion</span>
+          <nz-switch
+            [(ngModel)]="s.accordionMenu"
+            (ngModelChange)="update({ accordionMenu: $event })"
+          ></nz-switch>
+        </div>
+      </section>
+
+      <nz-divider></nz-divider>
+
+      <section class="config-section">
+        <h4 class="config-section-title">Tab trang</h4>
+
+        <div class="config-row">
+          <span class="config-label">Hiện tab trang</span>
+          <nz-switch
+            [(ngModel)]="s.showTabs"
+            (ngModelChange)="update({ showTabs: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Lưu tab khi tải lại</span>
+          <nz-switch
+            [(ngModel)]="s.persistTabs"
+            (ngModelChange)="update({ persistTabs: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Kéo thả tab</span>
+          <nz-switch
+            [(ngModel)]="s.dragTabs"
+            (ngModelChange)="update({ dragTabs: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Hiện icon tab</span>
+          <nz-switch
+            [(ngModel)]="s.showTabIcons"
+            (ngModelChange)="update({ showTabIcons: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Hiện nút phóng to tab</span>
+          <nz-switch
+            [(ngModel)]="s.showMaximizeTab"
+            (ngModelChange)="update({ showMaximizeTab: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Kiểu tab</span>
+          <nz-select
+            [(ngModel)]="s.tabStyle"
+            (ngModelChange)="update({ tabStyle: $event })"
+            style="width: 200px"
+          >
+            @for (t of tabStyles; track t.value) {
+              <nz-option [nzValue]="t.value" [nzLabel]="t.label"></nz-option>
+            }
+          </nz-select>
+        </div>
+
+        <div class="config-row config-row--col">
+          <span class="config-label">Số tab tối đa ({{ s.maxTabs }})</span>
+          <nz-slider
+            [(ngModel)]="s.maxTabs"
+            (ngModelChange)="update({ maxTabs: $event })"
+            [nzMin]="3"
+            [nzMax]="20"
+          ></nz-slider>
+        </div>
+      </section>
+
+      <nz-divider></nz-divider>
+
+      <section class="config-section">
+        <h4 class="config-section-title">Hiệu ứng</h4>
+
+        <div class="config-row">
+          <span class="config-label">Thanh tiến trình trang</span>
+          <nz-switch
+            [(ngModel)]="s.pageProgress"
+            (ngModelChange)="update({ pageProgress: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Hiệu ứng tải trang</span>
+          <nz-switch
+            [(ngModel)]="s.pageLoader"
+            (ngModelChange)="update({ pageLoader: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Chuyển động trang</span>
+          <nz-switch
+            [(ngModel)]="s.pageTransition"
+            (ngModelChange)="update({ pageTransition: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Kiểu chuyển động</span>
+          <nz-select
+            [(ngModel)]="s.transitionEffect"
+            (ngModelChange)="update({ transitionEffect: $event })"
+            style="width: 200px"
+          >
+            @for (e of transitionEffects; track e.value) {
+              <nz-option [nzValue]="e.value" [nzLabel]="e.label"></nz-option>
+            }
+          </nz-select>
+        </div>
+      </section>
+
+      <nz-divider></nz-divider>
+
+      <section class="config-section">
+        <h4 class="config-section-title">Chân trang</h4>
+
+        <div class="config-row">
+          <span class="config-label">Hiện chân trang</span>
+          <nz-switch
+            [(ngModel)]="s.showFooter"
+            (ngModelChange)="update({ showFooter: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-row">
+          <span class="config-label">Cố định chân trang</span>
+          <nz-switch
+            [(ngModel)]="s.fixedFooter"
+            (ngModelChange)="update({ fixedFooter: $event })"
+          ></nz-switch>
+        </div>
+
+        <div class="config-sub">
+          <span class="config-label config-label--sub">Tên công ty</span>
+          <input
+            nz-input
+            [(ngModel)]="s.companyName"
+            (ngModelChange)="update({ companyName: $event })"
+            class="config-input"
+          />
+        </div>
+
+        <div class="config-sub">
+          <span class="config-label config-label--sub">Website công ty</span>
+          <input
+            nz-input
+            [(ngModel)]="s.companyWebsite"
+            (ngModelChange)="update({ companyWebsite: $event })"
+            class="config-input"
+          />
+        </div>
+
+        <div class="config-sub">
+          <span class="config-label config-label--sub">Năm bản quyền</span>
+          <input
+            nz-input
+            [(ngModel)]="s.copyrightYear"
+            (ngModelChange)="update({ copyrightYear: $event })"
+            class="config-input"
+          />
+        </div>
+
+        <div class="config-sub">
+          <span class="config-label config-label--sub">Số ICP</span>
+          <input
+            nz-input
+            [(ngModel)]="s.icpNumber"
+            (ngModelChange)="update({ icpNumber: $event })"
+            class="config-input"
+          />
+        </div>
+
+        <div class="config-sub">
+          <span class="config-label config-label--sub">Liên kết ICP</span>
+          <input
+            nz-input
+            [(ngModel)]="s.icpLink"
+            (ngModelChange)="update({ icpLink: $event })"
+            class="config-input"
+          />
+        </div>
+      </section>
+    </div>
+
+    <div class="config-footer">
+      <button nz-button (click)="reset()">
+        <span nz-icon nzType="reload" nzTheme="outline"></span>
+        Đặt lại
+      </button>
+      <button nz-button (click)="copyConfig()">
+        <span nz-icon nzType="copy" nzTheme="outline"></span>
+        Sao chép cấu hình
+      </button>
+      <button nz-button (click)="clearCacheAndLogout()" class="ant-btn-danger">
+        <span nz-icon nzType="logout" nzTheme="outline"></span>
+        Xóa cache và đăng xuất
+      </button>
+    </div>
+  </div>
+</nz-drawer>

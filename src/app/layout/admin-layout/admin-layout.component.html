@@ -1,0 +1,39 @@
+<nz-layout class="admin-layout" [style.--font-family]="s.fontFamily">
+  @if (s.pageProgress && isNavigating) {
+    <div class="page-progress-bar">
+      <div class="page-progress-bar-value"></div>
+    </div>
+  }
+
+  @if (s.pageLoader && isNavigating) {
+    <div class="page-loader-overlay">
+      <div class="page-loader-spinner-wrap">
+        <nz-spin nzSimple></nz-spin>
+        <span class="page-loader-text">Đang tải trang...</span>
+      </div>
+    </div>
+  }
+
+  <app-sidebar></app-sidebar>
+  <nz-layout class="admin-right">
+    <app-navbar></app-navbar>
+    <app-tabs-bar></app-tabs-bar>
+    <nz-content
+      class="admin-content"
+      [class.page-transition-active]="s.pageTransition"
+      [attr.data-effect]="s.transitionEffect"
+      [attr.data-transition-state]="currentTransitionState"
+    >
+      <router-outlet></router-outlet>
+      @if (s.watermark) {
+        <div class="watermark-overlay">
+          @for (idx of watermarkTiles; track $index) {
+            <span class="watermark-tile">{{ s.watermarkText }}</span>
+          }
+        </div>
+      }
+    </nz-content>
+    <app-footer></app-footer>
+  </nz-layout>
+</nz-layout>
+<app-config-setting></app-config-setting>

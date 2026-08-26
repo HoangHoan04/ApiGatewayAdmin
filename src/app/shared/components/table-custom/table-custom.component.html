@@ -1,0 +1,626 @@
+<div class="table-custom-container">
+  @if (
+    toolbar?.show ||
+    toolbarLeftContent ||
+    toolbarRightContent ||
+    toolbar?.showRefreshButton ||
+    (toolbarActions && toolbarActions.length > 0)
+  ) {
+    <div class="table-custom-toolbar">
+      <div
+        class="toolbar-left"
+        style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap"
+      >
+        @for (act of toolbarActions; track act.key || act.label || $index) {
+          @if (isToolbarActionVisible(act)) {
+            @if (act.subActions && act.subActions.length > 0) {
+              <button
+                nz-button
+                nz-dropdown
+                [nzDropdownMenu]="menu"
+                [nzLoading]="isToolbarActionLoading(act) || isAnySubActionLoading(act)"
+                [disabled]="
+                  act.disabled || isToolbarActionLoading(act) || isAnySubActionLoading(act)
+                "
+                (nzVisibleChange)="onDropdownVisibleChange($event, act)"
+                class="toolbar-btn"
+                [ngClass]="'severity-' + (act.severity || 'primary')"
+              >
+                @if (act.icon) {
+                  <span nz-icon [nzType]="act.icon"></span>
+                }
+                <span>{{ act.label }}</span>
+                <span
+                  nz-icon
+                  nzType="down"
+                  class="toolbar-btn-caret"
+                  [class.rotated]="act.__open"
+                ></span>
+              </button>
+              <nz-dropdown-menu #menu="nzDropdownMenu">
+                <div class="toolbar-dropdown-menu">
+                  @for (sub of act.subActions; track sub.key || sub.label || $index) {
+                    @if (isToolbarActionVisible(sub)) {
+                      <button
+                        type="button"
+                        class="toolbar-dropdown-item"
+                        [class.disabled]="sub.disabled || isToolbarActionLoading(sub)"
+                        [disabled]="sub.disabled || isToolbarActionLoading(sub)"
+                        (click)="handleActionClick(sub, act)"
+                      >
+                        @if (!isToolbarActionLoading(sub) && sub.icon) {
+                          <span
+                            nz-icon
+                            [nzType]="sub.icon"
+                            class="toolbar-dropdown-item-icon"
+                            [ngClass]="'severity-' + (sub.severity || act.severity || 'primary')"
+                          ></span>
+                        }
+                        @if (isToolbarActionLoading(sub)) {
+                          <span
+                            nz-icon
+                            nzType="loading"
+                            class="toolbar-dropdown-item-icon"
+                          ></span>
+                        }
+                        <span class="toolbar-dropdown-item-label">{{ sub.label }}</span>
+                      </button>
+                    }
+                  }
+                </div>
+              </nz-dropdown-menu>
+            } @else {
+              <button
+                nz-button
+                [nzLoading]="isToolbarActionLoading(act)"
+                [disabled]="act.disabled || isToolbarActionLoading(act)"
+                (click)="handleActionClick(act)"
+                class="toolbar-btn"
+                [ngClass]="'severity-' + (act.severity || 'primary')"
+              >
+                @if (act.icon) {
+                  <span nz-icon [nzType]="act.icon"></span>
+                }
+                <span>{{ act.label }}</span>
+              </button>
+            }
+          }
+        }
+
+        @if (toolbarLeftContent) {
+          <ng-container *ngTemplateOutlet="toolbarLeftContent"></ng-container>
+        }
+      </div>
+
+      <div class="toolbar-right">
+        @if (toolbarRightContent) {
+          <ng-container *ngTemplateOutlet="toolbarRightContent"></ng-container>
+        }
+
+        <div class="density-selector">
+          <button
+            nz-button
+            [nzType]="density === 'small' ? 'default' : 'text'"
+            size="small"
+            class="density-btn mini-btn"
+            [class.active]="density === 'small'"
+            (click)="setDensity('small')"
+            title="Chế độ nhỏ"
+          >
+            Mini
+          </button>
+          <button
+            nz-button
+            [nzType]="density === 'normal' ? 'default' : 'text'"
+            size="small"
+            class="density-btn normal-btn"
+            [class.active]="density === 'normal'"
+            (click)="setDensity('normal')"
+            title="Chế độ mặc định"
+          >
+            Normal
+          </button>
+          <button
+            nz-button
+            [nzType]="density === 'large' ? 'default' : 'text'"
+            size="small"
+            class="density-btn big-btn"
+            [class.active]="density === 'large'"
+            (click)="setDensity('large')"
+            title="Chế độ lớn"
+          >
+            Big
+          </button>
+        </div>
+
+        @if (toolbar?.showRefreshButton) {
+          <button
+            nz-button
+            nzType="default"
+            class="toolbar-action-btn refresh-btn"
+            (click)="onRefreshClick()"
+            [disabled]="loading"
+            title="Làm mới dữ liệu"
+          >
+            <span nz-icon nzType="reload" nzTheme="outline" [nzSpin]="loading"></span>
+          </button>
+        }
+
+        <div class="relative config-dropdown">
+          <button
+            nz-button
+            nzType="default"
+            class="toolbar-action-btn config-cog-btn"
+            [class.bg-active]="showConfig"
+            (click)="showConfig = !showConfig"
+            title="Cấu hình cột"
+          >
+            <span nz-icon nzType="setting" nzTheme="outline"></span>
+          </button>
+
+          @if (showConfig) {
+            <div class="config-menu shadow-lg">
+              <div class="config-menu-header">
+                <span nz-icon nzType="table" nzTheme="outline"></span>
+                Cấu hình hiển thị cột
+              </div>
+              <div class="config-menu-list">
+                @for (col of columns; track col.field) {
+                  <label class="config-item-label">
+                    <input
+                      type="checkbox"
+                      [checked]="visibleColumnsMap[col.field]"
+                      (change)="toggleColumnVisibility(col.field)"
+                      class="config-checkbox"
+                    />
+                    <span class="config-checkbox-label">{{ col.header }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="table-scroll-wrapper shadow-lg">
+    <table class="custom-data-table" [class.gridlines]="showGridlines">
+      <thead>
+        <tr class="table-header-row">
+          @if (enableSelection) {
+            <th
+              class="checkbox-cell header-cell sticky-col sticky-left-0"
+              [ngClass]="'density-' + density"
+            >
+              @if (selectionMode === 'multiple') {
+                <div class="flex-center">
+                  <input
+                    type="checkbox"
+                    [checked]="isAllSelected()"
+                    (change)="onSelectAll($any($event.target).checked)"
+                    class="row-checkbox"
+                  />
+                </div>
+              }
+            </th>
+          }
+
+          @if (showIndexList) {
+            <th
+              class="stt-cell header-cell sticky-col"
+              [style.left.px]="enableSelection ? 48 : 0"
+              [ngClass]="'density-' + density"
+            >
+              STT
+            </th>
+          }
+
+          @for (col of visibleColumns; track col.field) {
+            <th
+              draggable="true"
+              (dragstart)="onDragStart($event, col.field)"
+              (dragover)="onDragOver($event, col.field)"
+              (drop)="onDrop(col.field)"
+              (click)="onSortClick(col.field, col.sortable)"
+              [style.width.px]="getColumnWidth(col)"
+              [style.text-align]="col.align || 'left'"
+              [style.left.px]="
+                col.frozen && col.alignFrozen !== 'right' ? getLeftStickyOffset(col) : null
+              "
+              [ngClass]="{
+                'header-cell data-header-cell': true,
+                'sortable-header': col.sortable,
+                'sticky-col sticky-left': col.frozen && col.alignFrozen !== 'right',
+                'density-small': density === 'small',
+                'density-normal': density === 'normal',
+                'density-large': density === 'large',
+              }"
+              [ngStyle]="col.headerStyle"
+            >
+              <div class="header-content-wrapper">
+                <div
+                  class="header-text-aligner"
+                  [ngClass]="{
+                    'align-right': col.align === 'right',
+                    'align-center': col.align === 'center',
+                    'align-left': col.align !== 'right' && col.align !== 'center',
+                  }"
+                >
+                  <span nz-icon nzType="menu" class="drag-icon-handle"></span>
+                  <span class="header-text-label">{{ col.header }}</span>
+                  @if (col.sortable) {
+                    <span class="sort-icon-wrapper">
+                      <span
+                        nz-icon
+                        [nzType]="
+                          sortField === col.field && sortOrder === 1
+                            ? 'arrow-up'
+                            : sortField === col.field && sortOrder === -1
+                              ? 'arrow-down'
+                              : 'swap'
+                        "
+                        [class.active-sort]="sortField === col.field"
+                      ></span>
+                    </span>
+                  }
+                </div>
+              </div>
+
+              @if (col.resizable !== false) {
+                <div
+                  (mousedown)="onResizeStart($event, col.field, getColumnWidth(col))"
+                  (click)="$event.stopPropagation()"
+                  class="col-resize-handle"
+                ></div>
+              }
+            </th>
+          }
+
+          @if (rowActions && rowActions.length > 0) {
+            <th
+              [style.width]="rowActionsWidth"
+              [style.right.px]="rowActionsFrozen ? 0 : null"
+              class="header-cell actions-header-cell"
+              [ngClass]="{
+                'sticky-col sticky-right': rowActionsFrozen,
+                'density-small': density === 'small',
+                'density-normal': density === 'normal',
+                'density-large': density === 'large',
+              }"
+            >
+              Thao tác
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading) {
+          <tr class="table-loading-row">
+            <td
+              [attr.colspan]="
+                visibleColumns.length +
+                (enableSelection ? 1 : 0) +
+                (showIndexList ? 1 : 0) +
+                (rowActions && rowActions.length > 0 ? 1 : 0)
+              "
+              class="p-12 text-center"
+            >
+              <div class="loading-state-wrapper">
+                <span nz-icon nzType="loading" class="animate-spin text-primary"></span>
+                <span class="loading-text">Đang tải dữ liệu...</span>
+              </div>
+            </td>
+          </tr>
+        } @else if (data.length === 0) {
+          <tr class="table-empty-row">
+            <td
+              [attr.colspan]="
+                visibleColumns.length +
+                (enableSelection ? 1 : 0) +
+                (showIndexList ? 1 : 0) +
+                (rowActions && rowActions.length > 0 ? 1 : 0)
+              "
+              class="p-12 text-center"
+            >
+              <div class="empty-state-wrapper">
+                <span nz-icon nzType="inbox" class="empty-icon"></span>
+                <span class="empty-text">{{ emptyText }}</span>
+              </div>
+            </td>
+          </tr>
+        } @else {
+          @for (rowData of displayData; track $index; let rowIndex = $index) {
+            <tr
+              (click)="onRowClickEmit(rowData)"
+              class="table-data-row"
+              [class.striped-row]="stripedRows && rowIndex % 2 === 1"
+            >
+              @if (enableSelection) {
+                <td
+                  class="checkbox-cell body-cell sticky-col sticky-left-0"
+                  (click)="$event.stopPropagation()"
+                  [ngClass]="'density-' + density"
+                >
+                  <div class="flex-center">
+                    <input
+                      type="checkbox"
+                      [checked]="isRowSelected(rowData)"
+                      (change)="onSelectRow(rowData, $any($event.target).checked)"
+                      class="row-checkbox"
+                    />
+                  </div>
+                </td>
+              }
+
+              @if (showIndexList) {
+                <td
+                  class="stt-cell body-cell sticky-col"
+                  [style.left.px]="enableSelection ? 48 : 0"
+                  [ngClass]="'density-' + density"
+                >
+                  {{ getRowIndex(rowIndex) }}
+                </td>
+              }
+
+              @for (col of visibleColumns; track col.field) {
+                <td
+                  [style.text-align]="col.align || 'left'"
+                  [style.left.px]="
+                    col.frozen && col.alignFrozen !== 'right' ? getLeftStickyOffset(col) : null
+                  "
+                  [ngClass]="{
+                    'body-cell data-body-cell': true,
+                    'sticky-col sticky-left': col.frozen && col.alignFrozen !== 'right',
+                    'density-small': density === 'small',
+                    'density-normal': density === 'normal',
+                    'density-large': density === 'large',
+                  }"
+                  [ngStyle]="col.bodyStyle"
+                >
+                  @if (col.body) {
+                    <ng-container
+                      *ngTemplateOutlet="
+                        col.body;
+                        context: { $implicit: rowData, rowIndex: rowIndex }
+                      "
+                    ></ng-container>
+                  } @else {
+                    @if (!col.type || col.type === 'text') {
+                      <span>
+                        {{ rowData[col.field] != null ? rowData[col.field] : '-' }}
+                      </span>
+                    } @else if (col.type === 'number') {
+                      <span>
+                        {{
+                          rowData[col.field] != null
+                            ? (rowData[col.field] | number: col.numberFormat || '1.0-2')
+                            : '-'
+                        }}
+                      </span>
+                    } @else if (col.type === 'currency') {
+                      <span>
+                        {{
+                          rowData[col.field] != null
+                            ? (rowData[col.field] | number: '1.0-0')
+                            : '-'
+                        }}
+                        {{ col.currencySymbol || '₫' }}
+                      </span>
+                    } @else if (col.type === 'date') {
+                      <span>
+                        {{
+                          rowData[col.field] != null
+                            ? (rowData[col.field] | date: col.dateFormat || 'dd/MM/yyyy')
+                            : '-'
+                        }}
+                      </span>
+                    } @else if (col.type === 'datetime') {
+                      <span>
+                        {{
+                          rowData[col.field] != null
+                            ? (rowData[col.field] | date: col.dateFormat || 'dd/MM/yyyy HH:mm')
+                            : '-'
+                        }}
+                      </span>
+                    } @else if (col.type === 'boolean') {
+                      <span
+                        class="badge-status inline-badge"
+                        [ngClass]="
+                          col.badgeSeverity
+                            ? getBadgeSeverityClass(col.badgeSeverity(rowData[col.field]))
+                            : rowData[col.field]
+                              ? 'status-true'
+                              : 'status-false'
+                        "
+                      >
+                        @if (col.renderBoolean) {
+                          {{ col.renderBoolean(rowData[col.field]) }}
+                        } @else {
+                          {{ rowData[col.field] ? 'Có' : 'Không' }}
+                        }
+                      </span>
+                    } @else if (col.type === 'badge' || col.type === 'tag') {
+                      @if (rowData[col.field] != null) {
+                        <span
+                          class="badge-status inline-badge"
+                          [ngClass]="
+                            !col.badgeColor
+                              ? getBadgeSeverityClass(
+                                  col.badgeSeverity
+                                    ? col.badgeSeverity(rowData[col.field])
+                                    : col.tagSeverity
+                                      ? col.tagSeverity(rowData[col.field])
+                                      : 'secondary'
+                                )
+                              : null
+                          "
+                          [ngStyle]="
+                            col.badgeColor
+                              ? getBadgeColorStyle(col.badgeColor(rowData[col.field]))
+                              : null
+                          "
+                        >
+                          {{ col.render ? col.render(rowData[col.field]) : rowData[col.field] }}
+                        </span>
+                      } @else {
+                        <span>-</span>
+                      }
+                    } @else if (col.type === 'image') {
+                      @if (rowData[col.field]) {
+                        <img
+                          [src]="rowData[col.field]"
+                          alt="Image"
+                          style="
+                            max-height: 40px;
+                            max-width: 60px;
+                            object-fit: cover;
+                            border-radius: 4px;
+                          "
+                        />
+                      } @else {
+                        -
+                      }
+                    }
+                  }
+                </td>
+              }
+
+              @if (rowActions && rowActions.length > 0) {
+                <td
+                  [style.right.px]="rowActionsFrozen ? 0 : null"
+                  [ngStyle]="rowActionsStyle"
+                  class="body-cell actions-body-cell"
+                  [ngClass]="{
+                    'sticky-col sticky-right': rowActionsFrozen,
+                    'density-small': density === 'small',
+                    'density-normal': density === 'normal',
+                    'density-large': density === 'large',
+                  }"
+                  (click)="$event.stopPropagation()"
+                >
+                  <div class="row-actions-container">
+                    @for (action of rowActions; track action.key || action.label || $index) {
+                      @if (isActionVisible(action, rowData)) {
+                        <button
+                          [disabled]="
+                            isActionDisabled(action, rowData) || isActionLoading(action, rowData)
+                          "
+                          (click)="action.onClick?.(rowData, rowIndex)"
+                          [nzTooltipTitle]="action.tooltip || null"
+                          nz-tooltip
+                          class="row-action-btn"
+                          [ngClass]="getActionSeverityClass(action)"
+                        >
+                          @if (isActionLoading(action, rowData)) {
+                            <span
+                              nz-icon
+                              nzType="loading"
+                              nzTheme="outline"
+                              style="font-size: 11px"
+                            ></span>
+                          } @else if (action.icon) {
+                            <span
+                              nz-icon
+                              [nzType]="action.icon"
+                              nzTheme="outline"
+                              style="font-size: 12px"
+                            ></span>
+                          } @else if (action.label) {
+                            <span class="action-btn-label">{{ action.label }}</span>
+                          }
+                        </button>
+                      }
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (pagination && !loading && data.length > 0) {
+    <div class="table-pagination-container">
+      <div class="pagination-summary">
+        Hiển thị {{ displayedFrom }} - {{ displayedTo }} / {{ pagination.total }} bản ghi
+      </div>
+      <div class="pagination-actions">
+        <div class="page-size-selector">
+          <span class="selector-label">Kích thước trang:</span>
+          <nz-select
+            [ngModel]="pagination.pageSize.toString()"
+            (ngModelChange)="onPageSizeChange(+$event)"
+            class="size-dropdown"
+          >
+            @for (size of pageSizeOptions; track size) {
+              <nz-option
+                [nzValue]="size.toString()"
+                [nzLabel]="size.toString()"
+              ></nz-option>
+            }
+          </nz-select>
+        </div>
+        <div class="pagination-buttons">
+          <button
+            nz-button
+            nzType="default"
+            size="small"
+            class="h-8 nav-btn nav-btn-icon"
+            (click)="onPageChangeClick(1)"
+            [disabled]="pagination.current === 1"
+            nz-tooltip
+            nzTooltipTitle="Trang đầu"
+          >
+            <span nz-icon nzType="double-left" nzTheme="outline"></span>
+          </button>
+
+          <button
+            nz-button
+            nzType="default"
+            size="small"
+            class="h-8 nav-btn nav-btn-icon"
+            (click)="onPageChangeClick(pagination.current - 1)"
+            [disabled]="pagination.current === 1"
+            nz-tooltip
+            nzTooltipTitle="Trang trước"
+          >
+            <span nz-icon nzType="left-circle" nzTheme="outline"></span>
+          </button>
+
+          <span class="pagination-page-indicator">
+            {{ pagination.current }} / {{ totalPages }}
+          </span>
+
+          <button
+            nz-button
+            nzType="default"
+            size="small"
+            class="h-8 nav-btn nav-btn-icon"
+            (click)="onPageChangeClick(pagination.current + 1)"
+            [disabled]="pagination.current * pagination.pageSize >= pagination.total"
+            nz-tooltip
+            nzTooltipTitle="Trang sau"
+          >
+            <span nz-icon nzType="right-circle" nzTheme="outline"></span>
+          </button>
+
+          <button
+            nz-button
+            nzType="default"
+            size="small"
+            class="h-8 nav-btn nav-btn-icon"
+            (click)="onPageChangeClick(totalPages)"
+            [disabled]="pagination.current * pagination.pageSize >= pagination.total"
+            nz-tooltip
+            nzTooltipTitle="Trang cuối"
+          >
+            <span nz-icon nzType="double-right" nzTheme="outline"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

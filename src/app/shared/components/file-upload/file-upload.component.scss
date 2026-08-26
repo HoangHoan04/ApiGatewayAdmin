@@ -1,0 +1,147 @@
+:host {
+  display: block;
+}
+
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: fit-content;
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+:host ::ng-deep .custom-uploader {
+  display: inline-block;
+
+  &.ant-upload-picture-card-wrapper,
+  .ant-upload-select,
+  .ant-upload.ant-upload-select,
+  .ant-upload.ant-upload-select-picture-card {
+    width: 150px !important;
+    height: 150px !important;
+    margin: 0 !important;
+  }
+
+  .ant-upload.ant-upload-select,
+  .ant-upload.ant-upload-select-picture-card {
+    border: 1px dashed var(--border, #d9d9d9) !important;
+    border-radius: 8px !important;
+    background-color: var(--background-elevated, #fafafa) !important;
+    transition: border-color 0.3s ease;
+    overflow: hidden;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    vertical-align: top;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--primary, #1890ff) !important;
+    }
+  }
+
+  .ant-upload-select > .ant-upload,
+  .ant-upload.ant-upload-select-picture-card > .ant-upload,
+  [nz-upload-btn] {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.upload-trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  min-width: 150px;
+  min-height: 150px;
+  color: var(--foreground-muted, #666);
+
+  .anticon {
+    font-size: 20px;
+    margin-bottom: 4px;
+    color: var(--foreground-muted, #8c8c8c);
+  }
+
+  .upload-text {
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.2;
+    padding: 0 4px;
+    color: var(--foreground, #666);
+  }
+}
+
+.preview-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  min-width: 150px;
+  min-height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .preview-actions {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      transition:
+        transform 0.2s,
+        color 0.2s;
+
+      &:hover {
+        transform: scale(1.2);
+        color: #40a9ff;
+      }
+
+      &.delete-btn:hover {
+        color: #ff4d4f;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+  }
+
+  &:hover .preview-actions {
+    opacity: 1;
+  }
+}
+
+.url-input {
+  width: 150px;
+  font-size: 12px;
+}

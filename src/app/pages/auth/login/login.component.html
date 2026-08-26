@@ -1,0 +1,33 @@
+<div class="sso-gateway-container">
+  <div class="gateway-header">
+    <div class="gateway-logo-badge">
+      <span nz-icon nzType="gateway" nzTheme="outline"></span>
+    </div>
+    <h1 class="gateway-title">API Gateway Control Center</h1>
+    <p class="gateway-subtitle">
+      Cổng Quản Trị, Giám Sát Lưu Lượng & Định Tuyến Hệ Sinh Thái Microservices
+    </p>
+  </div>
+
+  <div class="gateway-actions">
+    <button
+      nz-button
+      nzType="primary"
+      nzBlock
+      nzSize="large"
+      [nzLoading]="redirecting"
+      (click)="redirectToSso()"
+      class="sso-login-btn"
+    >
+      @if (!redirecting) {
+        <span nz-icon nzType="login" nzTheme="outline"></span>
+      }
+      <span>Chuyển đến Cổng Đăng Nhập SSO</span>
+    </button>
+  </div>
+
+  <div class="gateway-footer">
+    <span nz-icon nzType="safety-certificate" nzTheme="outline"></span>
+    <span>Xác thực mã hóa an toàn chuẩn OAuth2 OpenID Connect & JWT RS256</span>
+  </div>
+</div>

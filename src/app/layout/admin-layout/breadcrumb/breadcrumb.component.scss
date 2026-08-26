@@ -1,0 +1,9 @@
+:host {
+  display: inline-block;
+}
+
+.breadcrumb-last {
+  color: var(--foreground, rgba(0, 0, 0, 0.88));
+  font-weight: 600;
+  cursor: default;
+}

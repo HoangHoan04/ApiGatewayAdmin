@@ -1,0 +1,128 @@
+.auth-wrapper {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--background, #ffffff);
+  color: var(--foreground, #1f2937);
+  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  padding: 24px;
+  box-sizing: border-box;
+  transition: background-color 0.25s ease, color 0.25s ease;
+
+  @media (max-width: 640px) {
+    padding: 16px;
+  }
+}
+
+.auth-header {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  .auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md, 6px);
+      background: var(--primary, #3b82f6);
+      color: var(--primary-foreground, #ffffff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+    }
+
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+
+      .brand-name {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        color: var(--foreground, #1f2937);
+      }
+
+      .brand-tag {
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--muted-foreground, #6b7280);
+      }
+    }
+  }
+
+  .header-tools {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.auth-main {
+  width: 100%;
+  max-width: 440px;
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.auth-footer {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 16px;
+  text-align: center;
+
+  .footer-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .footer-link {
+      font-size: 12.5px;
+      color: var(--muted-foreground, #6b7280);
+      text-decoration: none;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: var(--primary, #3b82f6);
+      }
+    }
+
+    .divider {
+      color: var(--border, #e5e7eb);
+      font-size: 11px;
+    }
+  }
+
+  .footer-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    color: var(--muted-foreground, #6b7280);
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .meta-dot {
+      color: var(--border, #e5e7eb);
+    }
+  }
+}

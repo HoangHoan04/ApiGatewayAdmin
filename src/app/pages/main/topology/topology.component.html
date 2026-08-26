@@ -1,0 +1,72 @@
+<div class="topology-page">
+  <div class="page-header">
+    <div class="header-title-wrap">
+      <h2 class="page-title">
+        <span nz-icon nzType="share-alt" nzTheme="outline" class="title-icon"></span>
+        <span>Sơ Đồ Topology & Sức Khỏe Microservices</span>
+      </h2>
+      <p class="page-subtitle">
+        Trực quan hóa kiến trúc liên kết phân tán và theo dõi trạng thái sống còn (Live Health Ping) của từng Service
+      </p>
+    </div>
+    <div class="header-actions">
+      <button nz-button nzType="primary" [nzLoading]="loading" (click)="loadHealth()">
+        <span nz-icon nzType="sync" nzTheme="outline"></span>
+        Kiểm tra sức khỏe toàn hệ thống
+      </button>
+    </div>
+  </div>
+
+  <!-- GATEWAY CORE NODE -->
+  <div class="gateway-core-card">
+    <div class="core-badge">
+      <span nz-icon nzType="gateway" nzTheme="outline"></span>
+    </div>
+    <div class="core-info">
+      <h3 class="core-title">ERP Enterprise API Gateway (Port 8000)</h3>
+      <p class="core-desc">
+        Điểm tiếp nhận lưu lượng duy nhất (Single Entry Point), xử lý CORS, xác thực JWT tập trung, Rate Limiting và định tuyến YARP.
+      </p>
+    </div>
+    <div class="core-status">
+      <span class="pulse-indicator"></span>
+      <span class="status-text">Đang hoạt động (Active Proxy)</span>
+    </div>
+  </div>
+
+  <!-- MICROSERVICES NODES GRID -->
+  <div class="services-grid">
+    @for (svc of services; track svc.serviceKey) {
+      <div class="service-node-card" [class.is-healthy]="svc.status === 'HEALTHY'" [class.is-unhealthy]="svc.status === 'UNHEALTHY'">
+        <div class="node-header">
+          <div class="node-icon-box">
+            <span nz-icon [nzType]="svc.icon || 'api'" nzTheme="outline"></span>
+          </div>
+          <div class="node-status-badge" [class.healthy]="svc.status === 'HEALTHY'" [class.unhealthy]="svc.status === 'UNHEALTHY'">
+            @if (svc.status === 'HEALTHY') {
+              <span class="status-dot"></span>
+              <span>Healthy ({{ svc.latencyMs }}ms)</span>
+            } @else {
+              <span class="status-dot"></span>
+              <span>Chưa sẵn sàng</span>
+            }
+          </div>
+        </div>
+
+        <div class="node-body">
+          <h4 class="node-name">{{ svc.name }}</h4>
+          <span class="node-endpoint">{{ svc.baseUrl }}</span>
+          <p class="node-desc">{{ svc.description }}</p>
+        </div>
+
+        <div class="node-footer">
+          <span class="last-checked">Cập nhật: {{ svc.lastCheckedAt | date: 'HH:mm:ss' }}</span>
+          <a [href]="svc.baseUrl" target="_blank" class="direct-link">
+            <span>Mở Service</span>
+            <span nz-icon nzType="link" nzTheme="outline"></span>
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+</div>

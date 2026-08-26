@@ -1,0 +1,236 @@
+<div class="routes-page">
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-title-wrap">
+      <h2 class="page-title">
+        <span nz-icon nzType="branches" nzTheme="outline" class="title-icon"></span>
+        <span>Bảng Định Tuyến & Clusters (Microsoft YARP Rules)</span>
+      </h2>
+      <p class="page-subtitle">
+        Cấu hình quy tắc chuyển tiếp Reverse Proxy, cụm dịch vụ đích (Clusters) và chính sách bảo mật tập trung
+      </p>
+    </div>
+    <div class="header-actions">
+      <button nz-button nzType="default" [nzLoading]="loading" (click)="loadRoutes()" class="action-btn">
+        <span nz-icon nzType="reload" nzTheme="outline"></span>
+        <span>Làm mới quy tắc</span>
+      </button>
+    </div>
+  </div>
+
+  <nz-tabs [(nzSelectedIndex)]="selectedTab" nzType="card" class="custom-routes-tabs">
+    <!-- TAB 1: ROUTES -->
+    <nz-tab [nzTitle]="routesTabTitle">
+      <ng-template #routesTabTitle>
+        <span nz-icon nzType="node-index"></span>
+        <span>Quy Tắc Định Tuyến ({{ filteredRoutes.length }})</span>
+      </ng-template>
+
+      <!-- TOOLBAR & VIEW MODE SWITCHER -->
+      <div class="routes-toolbar">
+        <div class="search-box">
+          <nz-input-group [nzPrefix]="prefixSearch" [nzSuffix]="suffixClear">
+            <input
+              type="text"
+              nz-input
+              [(ngModel)]="searchKeyword"
+              (ngModelChange)="onSearchChange()"
+              placeholder="Tìm theo Route ID, đường dẫn /api/..., hoặc cụm Cluster..."
+            />
+          </nz-input-group>
+          <ng-template #prefixSearch>
+            <span nz-icon nzType="search" class="search-icon"></span>
+          </ng-template>
+          <ng-template #suffixClear>
+            @if (searchKeyword) {
+              <span nz-icon nzType="close-circle" nzTheme="fill" class="clear-icon" (click)="searchKeyword = ''; onSearchChange()"></span>
+            }
+          </ng-template>
+        </div>
+
+        <!-- FILTER CHIPS -->
+        <div class="filter-chips-group">
+          <button
+            class="chip-btn"
+            [class.active]="selectedCluster === null"
+            (click)="setClusterFilter(null)"
+          >
+            Tất cả Clusters ({{ routes.length }})
+          </button>
+          @for (c of clusters; track c.clusterId) {
+            <button
+              class="chip-btn"
+              [class.active]="selectedCluster === c.clusterId"
+              (click)="setClusterFilter(c.clusterId)"
+            >
+              {{ c.clusterId }}
+            </button>
+          }
+        </div>
+
+        <!-- VIEW TOGGLE BUTTONS -->
+        <div class="view-switch-box">
+          <nz-radio-group [(ngModel)]="viewMode" nzButtonStyle="solid">
+            <label nz-radio-button nzValue="cards">
+              <span nz-icon nzType="appstore" nzTheme="outline"></span>
+              <span>Cards</span>
+            </label>
+            <label nz-radio-button nzValue="table">
+              <span nz-icon nzType="table" nzTheme="outline"></span>
+              <span>Bảng</span>
+            </label>
+          </nz-radio-group>
+        </div>
+      </div>
+
+      <!-- VIEW 1: CARDS GRID -->
+      @if (viewMode === 'cards') {
+        <div class="routes-cards-grid">
+          @for (route of paginatedRoutes; track route.routeId) {
+            <div class="route-card" [ngClass]="getClusterTheme(route.clusterId)">
+              <!-- Card Header -->
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="cluster-badge">
+                    <span nz-icon nzType="cloud-server" nzTheme="outline"></span>
+                    <span>{{ route.clusterId }}</span>
+                  </div>
+                  <h4 class="route-id">{{ route.routeId }}</h4>
+                </div>
+                <div class="header-right">
+                  <span class="method-tag">{{ route.methods.join(', ') || 'ALL' }}</span>
+                </div>
+              </div>
+
+              <!-- Card Body: Path & Details -->
+              <div class="card-body">
+                <div class="path-box" (click)="copyPath(route.pathMatch, $event)" nz-tooltip nzTooltipTitle="Nhấp để sao chép path">
+                  <span class="path-text">{{ route.pathMatch }}</span>
+                  <span nz-icon nzType="copy" nzTheme="outline" class="copy-icon"></span>
+                </div>
+
+                <div class="meta-details">
+                  <div class="meta-row">
+                    <span class="meta-label">Đích Forward:</span>
+                    <span class="meta-value destination">{{ getClusterDestination(route.clusterId) }}</span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Chính sách Xác Thực:</span>
+                    <span
+                      class="auth-policy-tag"
+                      [class.anonymous]="route.authorizationPolicy === 'Anonymous'"
+                    >
+                      <span nz-icon [nzType]="route.authorizationPolicy === 'Anonymous' ? 'unlock' : 'safety-certificate'"></span>
+                      {{ route.authorizationPolicy || 'Anonymous' }}
+                    </span>
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-label">Rate Limiter:</span>
+                    <span class="meta-value">{{ route.rateLimiterPolicy || 'Mặc định (200 req/m)' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Footer -->
+              <div class="card-footer">
+                <span class="forward-indicator">
+                  <span nz-icon nzType="swap-right" nzTheme="outline" class="arrow-icon"></span>
+                  Proxy YARP Active
+                </span>
+                <button
+                  nz-button
+                  nzType="text"
+                  nzSize="small"
+                  (click)="copyPath(route.pathMatch, $event)"
+                  class="copy-btn"
+                >
+                  <span nz-icon nzType="copy" nzTheme="outline"></span>
+                  Sao chép
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- CARDS PAGINATION -->
+        @if (filteredRoutes.length > pagination.pageSize) {
+          <div class="pagination-wrapper">
+            <nz-pagination
+              [nzPageIndex]="pagination.current"
+              [nzPageSize]="pagination.pageSize"
+              [nzTotal]="filteredRoutes.length"
+              [nzShowTotal]="totalTemplate"
+              (nzPageIndexChange)="onPageChange({ page: $event, pageSize: pagination.pageSize })"
+            ></nz-pagination>
+            <ng-template #totalTemplate let-total>
+              Tổng cộng <strong>{{ total }}</strong> quy tắc định tuyến
+            </ng-template>
+          </div>
+        }
+      }
+
+      <!-- VIEW 2: TABLE VIEW -->
+      @if (viewMode === 'table') {
+        <div class="table-container">
+          <app-table-custom
+            [id]="'routes-table'"
+            [columns]="columns"
+            [data]="filteredRoutes"
+            [loading]="loading"
+            [showIndexList]="true"
+            [stripedRows]="true"
+            [toolbar]="toolbar"
+            [pagination]="pagination"
+            (pageChange)="onPageChange($event)"
+            (refresh)="loadRoutes()"
+          ></app-table-custom>
+        </div>
+      }
+    </nz-tab>
+
+    <!-- TAB 2: CLUSTERS -->
+    <nz-tab [nzTitle]="clustersTabTitle">
+      <ng-template #clustersTabTitle>
+        <span nz-icon nzType="apartment"></span>
+        <span>Cụm Dịch Vụ Đích / Clusters ({{ clusters.length }})</span>
+      </ng-template>
+
+      <div class="clusters-grid">
+        @for (cluster of clusters; track cluster.clusterId) {
+          <div class="cluster-card" [ngClass]="getClusterTheme(cluster.clusterId)">
+            <div class="cluster-header">
+              <div class="cluster-id-box">
+                <div class="cluster-icon-wrap">
+                  <span nz-icon nzType="cloud-server" nzTheme="outline"></span>
+                </div>
+                <div>
+                  <h3 class="cluster-title">{{ cluster.clusterId }}</h3>
+                  <span class="cluster-routes-count">
+                    {{ cluster.destinations.length }} Điểm đến (Destinations)
+                  </span>
+                </div>
+              </div>
+              <nz-tag nzColor="success">Healthy Cluster</nz-tag>
+            </div>
+
+            <div class="destinations-list">
+              <span class="dest-title">Danh sách máy chủ đích (Downstream Addresses):</span>
+              @for (dest of cluster.destinations; track dest.name) {
+                <div class="dest-item">
+                  <div class="dest-left">
+                    <span class="dest-name">{{ dest.name }}</span>
+                    <span class="dest-addr">{{ dest.address }}</span>
+                  </div>
+                  <span class="status-pill online">
+                    <span class="dot"></span>
+                    Online
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </nz-tab>
+  </nz-tabs>
+</div>

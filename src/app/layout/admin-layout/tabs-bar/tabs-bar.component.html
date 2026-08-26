@@ -1,0 +1,187 @@
+@if (s.showTabs) {
+  <div class="tabs-bar">
+    <div #tabsContainer class="tabs-container">
+      @for (tab of visibleTabs; track $index; let i = $index) {
+        <div
+          class="tab-item"
+          [class.tab-active]="activeTabId === tab.id"
+          [class.tab-chrome]="s.tabStyle === 'chrome'"
+          [class.tab-card]="s.tabStyle === 'card'"
+          [class.tab-icon]="s.tabStyle === 'icon'"
+          [class.tab-simple]="s.tabStyle === 'simple'"
+          [draggable]="s.dragTabs && !pinnedTabs.includes(tab.id)"
+          (dragstart)="onDragStart(i)"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop(i)"
+          (click)="selectTab(tab)"
+          (contextmenu)="onContextMenu($event, tab.id)"
+        >
+          @if (s.showTabIcons) {
+            <span nz-icon [nzType]="getRouteIcon(tab)" nzTheme="outline" class="tab-icon"></span>
+          }
+          @if (s.tabStyle !== 'icon') {
+            <span class="tab-label">{{ getRouteLabel(tab) }}</span>
+          }
+          @if (pinnedTabs.includes(tab.id)) {
+            <span nz-icon nzType="pushpin" nzTheme="fill" class="tab-pin"></span>
+          }
+          @if (openTabs.length > 1 && !pinnedTabs.includes(tab.id)) {
+            <button class="tab-close" (click)="closeTab(tab.id); $event.stopPropagation()">
+              <span nz-icon nzType="close" nzTheme="outline"></span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="tabs-actions">
+      @if (overflowTabs.length > 0) {
+        <button
+          class="tab-action-btn"
+          nz-dropdown
+          [nzDropdownMenu]="overflowMenu"
+          nzTrigger="click"
+          nzPlacement="bottomRight"
+        >
+          <span nz-icon nzType="more" nzTheme="outline"></span>
+          <span class="overflow-badge">{{ overflowTabs.length }}</span>
+        </button>
+        <nz-dropdown-menu #overflowMenu="nzDropdownMenu">
+          <ul nz-menu>
+            @for (tab of overflowTabs; track $index) {
+              <li nz-menu-item (click)="selectTab(tab)">
+                <span nz-icon [nzType]="getRouteIcon(tab)" nzTheme="outline"></span>
+                {{ getRouteLabel(tab) }}
+                @if (pinnedTabs.includes(tab.id)) {
+                  <span
+                    nz-icon
+                    nzType="pushpin"
+                    nzTheme="fill"
+                    style="margin-left: auto; font-size: 12px; color: var(--primary)"
+                  ></span>
+                }
+              </li>
+            }
+          </ul>
+        </nz-dropdown-menu>
+      }
+
+      <button
+        class="tab-action-btn"
+        (click)="refreshAllTabs()"
+        nz-tooltip
+        nzTooltipTitle="Làm mới tất cả"
+      >
+        <span nz-icon nzType="reload" nzTheme="outline"></span>
+      </button>
+
+      <button
+        class="tab-action-btn"
+        (click)="ds.setMaximized(!isMaximized)"
+        [nzTooltipTitle]="isMaximized ? 'Thu nhỏ' : 'Toàn màn hình'"
+        nz-tooltip
+      >
+        <span
+          nz-icon
+          [nzType]="isMaximized ? 'fullscreen-exit' : 'fullscreen'"
+          nzTheme="outline"
+        ></span>
+      </button>
+
+      <button
+        class="tab-action-btn"
+        nz-dropdown
+        [nzDropdownMenu]="actionsMenu"
+        nzTrigger="click"
+        nzPlacement="bottomRight"
+      >
+        <span nz-icon nzType="down" nzTheme="outline"></span>
+      </button>
+      <nz-dropdown-menu #actionsMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item (click)="refreshTab(activeTabId)">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Làm mới
+          </li>
+          <li nz-menu-divider></li>
+          <li nz-menu-item (click)="closeTab(activeTabId)" [class.disabled]="openTabs.length <= 1">
+            <span nz-icon nzType="close" nzTheme="outline"></span>
+            Đóng tab hiện tại
+          </li>
+          <li nz-menu-item (click)="closeTabsToLeft(activeTabId)">
+            <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+            Đóng các tab bên trái
+          </li>
+          <li nz-menu-item (click)="closeTabsToRight(activeTabId)">
+            <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+            Đóng các tab bên phải
+          </li>
+          <li nz-menu-item (click)="closeOtherTabs(activeTabId)">
+            <span nz-icon nzType="minus-circle" nzTheme="outline"></span>
+            Đóng các tab khác
+          </li>
+          <li nz-menu-item (click)="closeAllTabs()" style="color: var(--primary); font-weight: 600">
+            <span nz-icon nzType="folder-open" nzTheme="outline"></span>
+            Đóng tất cả
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+  </div>
+
+  @if (contextMenu) {
+    <div
+      class="context-menu"
+      [style.top.px]="contextMenu.y"
+      [style.left.px]="contextMenu.x"
+      (click)="$event.stopPropagation()"
+    >
+      <button class="context-item" (click)="refreshTab(contextMenu.tabId); contextMenu = null">
+        <span nz-icon nzType="reload" nzTheme="outline"></span> Làm mới
+      </button>
+      <button
+        class="context-item"
+        (click)="closeTab(contextMenu.tabId); contextMenu = null"
+        [class.disabled]="openTabs.length <= 1"
+      >
+        <span nz-icon nzType="close" nzTheme="outline"></span> Đóng
+      </button>
+      <div class="context-divider"></div>
+      <button class="context-item" (click)="closeTabsToLeft(contextMenu.tabId); contextMenu = null">
+        <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+        Đóng các tab bên trái
+      </button>
+      <button
+        class="context-item"
+        (click)="closeTabsToRight(contextMenu.tabId); contextMenu = null"
+      >
+        <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
+        Đóng các tab bên phải
+      </button>
+      <button class="context-item" (click)="closeOtherTabs(contextMenu.tabId); contextMenu = null">
+        <span nz-icon nzType="minus-circle" nzTheme="outline"></span>
+        Đóng các tab khác
+      </button>
+      <button
+        class="context-item"
+        (click)="closeAllTabs(); contextMenu = null"
+        style="color: var(--primary)"
+      >
+        <span nz-icon nzType="folder-open" nzTheme="outline"></span>
+        Đóng tất cả
+      </button>
+      <div class="context-divider"></div>
+      <button class="context-item" (click)="duplicateTab(contextMenu.tabId); contextMenu = null">
+        <span nz-icon nzType="copy" nzTheme="outline"></span> Nhân bản tab
+      </button>
+      <button class="context-item" (click)="togglePinTab(contextMenu.tabId); contextMenu = null">
+        <span
+          nz-icon
+          nzType="pushpin"
+          nzTheme="outline"
+        ></span>
+        {{ pinnedTabs.includes(contextMenu.tabId) ? 'Bỏ ghim' : 'Ghim tab' }}
+      </button>
+    </div>
+  }
+}

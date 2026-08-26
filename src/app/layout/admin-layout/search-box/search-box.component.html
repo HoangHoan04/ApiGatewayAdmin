@@ -1,0 +1,155 @@
+<div class="search-trigger" (click)="open()">
+  <span nz-icon nzType="search" nzTheme="outline" class="search-trigger-icon"></span>
+  <span class="search-trigger-text">Tìm kiếm ....</span>
+  <kbd class="search-kbd">Ctrl K</kbd>
+</div>
+
+@if (isOpen) {
+  <div class="search-overlay" (click)="close()">
+    <div class="search-dialog" (click)="$event.stopPropagation()">
+      <div class="search-header">
+        <span nz-icon nzType="search" nzTheme="outline" class="search-header-icon"></span>
+        <input
+          class="search-input"
+          [(ngModel)]="query"
+          (keydown)="onInputKeydown($event)"
+          placeholder="Nhập từ khóa tìm kiếm"
+          autofocus
+          autocomplete="off"
+        />
+        <div class="search-header-actions">
+          @if (query) {
+            <button class="search-header-btn" (click)="clearQuery()">
+              <span nz-icon nzType="close" nzTheme="outline"></span>
+            </button>
+          }
+          <span class="search-badge">ESC</span>
+          <button class="search-header-btn" (click)="close()">
+            <span nz-icon nzType="close" nzTheme="outline"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="search-body">
+        @if (query) {
+          <div class="search-section">
+            <span class="search-section-title">Kết quả tìm kiếm</span>
+            @if (searchResults.length > 0) {
+              @for (result of searchResults; track $index; let i = $index) {
+                <button
+                  class="search-item"
+                  [class.search-item-active]="i === activeIndex"
+                  (click)="selectItem(result, i)"
+                  (mouseenter)="activeIndex = i"
+                >
+                  <div class="search-item-left">
+                    <div
+                      class="search-item-icon-wrap"
+                      [class.search-item-icon-active]="i === activeIndex"
+                    >
+                      <span nz-icon [nzType]="getIcon(result)" nzTheme="outline"></span>
+                    </div>
+                    <span class="search-item-label">{{ getLabel(result) }}</span>
+                  </div>
+                  <div class="search-item-right">
+                    <span class="search-item-path">{{ result.path }}</span>
+                    @if (i === activeIndex) {
+                      <span
+                        nz-icon
+                        nzType="enter"
+                        nzTheme="outline"
+                        class="search-item-enter"
+                      ></span>
+                    }
+                  </div>
+                </button>
+              }
+            } @else {
+              <div class="search-empty">
+                <div class="search-empty-icon">
+                  <span nz-icon nzType="search" nzTheme="outline"></span>
+                </div>
+                <p class="search-empty-title">Không tìm thấy kết quả</p>
+                <p class="search-empty-desc">Vui lòng thử với từ khóa khác</p>
+              </div>
+            }
+          </div>
+        }
+
+        @if (!query) {
+          <div class="search-section">
+            <span class="search-section-title">Trang phổ biến</span>
+            <div class="search-grid">
+              @for (page of popularPages; track $index) {
+                <button class="search-grid-item" (click)="navigateTo(page)">
+                  <div class="search-grid-icon">
+                    <span nz-icon [nzType]="getIcon(page)" nzTheme="outline"></span>
+                  </div>
+                  <span class="search-grid-label">{{ getLabel(page) }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        @if (!query) {
+          <div class="search-section">
+            <div class="search-recent-header">
+              <span class="search-section-title">Tìm kiếm gần đây</span>
+              @if (recentSearches.length > 0) {
+                <button class="search-clear-all" (click)="clearRecent()">Dọn dẹp</button>
+              }
+            </div>
+            @if (recentSearches.length > 0) {
+              @for (search of recentSearches; track $index; let i = $index) {
+                <div
+                  class="search-item"
+                  [class.search-item-active]="i === activeIndex"
+                  (click)="navigateTo(search)"
+                  (mouseenter)="activeIndex = i"
+                >
+                  <div class="search-item-left">
+                    <div
+                      class="search-item-icon-wrap"
+                      [class.search-item-icon-active]="i === activeIndex"
+                    >
+                      <span nz-icon nzType="history" nzTheme="outline"></span>
+                    </div>
+                    <span class="search-item-label">{{ getLabel(search) }}</span>
+                  </div>
+                  <div class="search-item-right">
+                    <span class="search-item-path">{{ search.path }}</span>
+                    <button class="search-item-remove" (click)="removeRecent($event, search.path)">
+                      <span nz-icon nzType="delete" nzTheme="outline"></span>
+                    </button>
+                    @if (i === activeIndex) {
+                      <span
+                        nz-icon
+                        nzType="enter"
+                        nzTheme="outline"
+                        class="search-item-enter"
+                      ></span>
+                    }
+                  </div>
+                </div>
+              }
+            } @else {
+              <span class="search-empty-recent">Không có tìm kiếm gần đây</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="search-footer">
+        <div class="search-footer-left">
+          <span class="search-footer-hint"> <kbd class="search-kbd-sm">↑↓</kbd> Điều hướng </span>
+          <span class="search-footer-hint"> <kbd class="search-kbd-sm">Enter</kbd> Chọn </span>
+        </div>
+        <div class="search-footer-right">
+          <kbd class="search-kbd-sm">⌘</kbd>
+          <span>Search Portal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,194 @@
+<div class="api-explorer-page">
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="header-title-wrap">
+      <h2 class="page-title">
+        <span nz-icon nzType="code" nzTheme="outline" class="title-icon"></span>
+        <span>Unified API Explorer (OpenAPI Swagger Aggregator)</span>
+      </h2>
+      <p class="page-subtitle">
+        Khám phá toàn bộ tài liệu OpenAPI, kiểm tra trạng thái hoạt động thực tế và kiểm thử trực tiếp qua API Gateway
+      </p>
+    </div>
+    <div class="header-actions">
+      <a nz-button nzType="primary" href="http://localhost:8000/swagger" target="_blank" class="action-btn">
+        <span nz-icon nzType="export" nzTheme="outline"></span>
+        <span>Mở Swagger Toàn Màn Hình</span>
+      </a>
+      <button nz-button nzType="default" [nzLoading]="loading" (click)="loadDocs()" class="action-btn">
+        <span nz-icon nzType="reload" nzTheme="outline"></span>
+        <span>Làm mới & Ping lại</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEARCH & FILTER TOOLBAR -->
+  <div class="explorer-toolbar">
+    <div class="search-box">
+      <nz-input-group [nzPrefix]="prefixIconSearch" [nzSuffix]="suffixClear">
+        <input
+          type="text"
+          nz-input
+          [(ngModel)]="searchKeyword"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Tìm kiếm theo tên dịch vụ, cổng port (:5036, :5104), URL endpoint..."
+        />
+      </nz-input-group>
+      <ng-template #prefixIconSearch>
+        <span nz-icon nzType="search" class="search-icon"></span>
+      </ng-template>
+      <ng-template #suffixClear>
+        @if (searchKeyword) {
+          <span nz-icon nzType="close-circle" nzTheme="fill" class="clear-icon" (click)="searchKeyword = ''; onSearchChange()"></span>
+        }
+      </ng-template>
+    </div>
+
+    <div class="stats-summary">
+      <span class="count-pill health-pill">
+        <span class="dot-online"></span>
+        <strong>{{ getHealthyCount() }} / {{ services.length }}</strong> Dịch vụ Online
+      </span>
+    </div>
+  </div>
+
+  <!-- DYNAMIC FLEXIBLE SERVICE CARDS GRID -->
+  <div class="services-cards-grid">
+    @for (svc of filteredServices; track svc.serviceKey) {
+      <div
+        class="service-card"
+        [class.is-selected]="selectedService?.serviceKey === svc.serviceKey"
+        [ngClass]="'theme-' + svc.serviceKey.toLowerCase()"
+        (click)="selectService(svc, true)"
+      >
+        <!-- Card Header -->
+        <div class="card-header">
+          <div class="icon-avatar">
+            <span nz-icon [nzType]="svc.icon || 'api'" nzTheme="outline"></span>
+          </div>
+          <div class="header-meta">
+            <div class="title-row">
+              <h3 class="service-title" [nz-tooltip]="svc.name">{{ svc.name }}</h3>
+              @if (selectedService?.serviceKey === svc.serviceKey) {
+                <span class="active-badge">
+                  <span class="pulse-ring"></span>
+                  Đang xem
+                </span>
+              }
+            </div>
+            <div class="tags-row">
+              <span class="port-tag">{{ getPort(svc.baseUrl) || ':8000' }}</span>
+              <span class="key-tag">{{ svc.serviceKey }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <!-- Real-time Health Status Pill -->
+          <div class="health-status-row">
+            @if (svc.status === 'HEALTHY') {
+              <span class="service-status-pill online">
+                <span class="pulse-dot"></span>
+                <span>Hoạt động</span>
+                @if (svc.latencyMs > 0) {
+                  <span class="latency">({{ svc.latencyMs }}ms)</span>
+                }
+              </span>
+            } @else {
+              <span class="service-status-pill offline">
+                <span class="offline-dot"></span>
+                <span>Chưa khởi động / Offline</span>
+              </span>
+            }
+          </div>
+
+          <p class="service-desc">
+            {{ svc.description || 'Dịch vụ nghiệp vụ độc lập trong hệ sinh thái Microservices.' }}
+          </p>
+          <div class="endpoint-chip">
+            <span class="chip-label">Base URL:</span>
+            <span class="chip-url">{{ svc.baseUrl }}</span>
+          </div>
+        </div>
+
+        <!-- Card Actions Footer -->
+        <div class="card-footer">
+          <button
+            nz-button
+            nzType="primary"
+            nzSize="small"
+            class="view-spec-btn"
+            (click)="selectService(svc, true); $event.stopPropagation()"
+          >
+            <span nz-icon nzType="eye" nzTheme="outline"></span>
+            <span>Mở xem tài liệu</span>
+          </button>
+
+          <div class="quick-icons">
+            <button
+              nz-button
+              nzType="text"
+              nzSize="small"
+              nz-tooltip
+              nzTooltipTitle="Sao chép Swagger URL"
+              (click)="copyUrl(svc, $event)"
+              class="icon-action-btn"
+            >
+              <span nz-icon nzType="copy" nzTheme="outline"></span>
+            </button>
+            <a
+              nz-button
+              nzType="text"
+              nzSize="small"
+              nz-tooltip
+              nzTooltipTitle="Mở Swagger gốc trong Tab mới"
+              [href]="getServiceSwaggerLink(svc)"
+              target="_blank"
+              (click)="$event.stopPropagation()"
+              class="icon-action-btn"
+            >
+              <span nz-icon nzType="export" nzTheme="outline"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- EMBEDDED SWAGGER UI VIEWER -->
+  <div id="swagger-viewer-container" class="swagger-frame-wrapper">
+    <div class="frame-bar">
+      <div class="frame-bar-left">
+        <div class="window-controls">
+          <span class="win-dot red"></span>
+          <span class="win-dot yellow"></span>
+          <span class="win-dot green"></span>
+        </div>
+        <div class="frame-title-box">
+          <span nz-icon nzType="laptop" nzTheme="outline" class="laptop-icon"></span>
+          <span class="frame-title">
+            OpenAPI Viewer: <strong>{{ selectedService?.name || 'API Gateway Management' }}</strong>
+          </span>
+          <span class="frame-url-badge">{{ selectedService?.baseUrl || 'http://localhost:8000' }}/swagger</span>
+        </div>
+      </div>
+      <div class="frame-bar-right">
+        <a
+          nz-button
+          nzType="default"
+          nzSize="small"
+          [href]="selectedService ? getServiceSwaggerLink(selectedService) : 'http://localhost:8000/swagger'"
+          target="_blank"
+          class="open-external-btn"
+        >
+          <span nz-icon nzType="arrows-alt" nzTheme="outline"></span>
+          Mở tab riêng
+        </a>
+      </div>
+    </div>
+    @if (iframeUrl) {
+      <iframe [src]="iframeUrl" class="swagger-embedded-frame" title="Swagger UI Explorer"></iframe>
+    }
+  </div>
+</div>

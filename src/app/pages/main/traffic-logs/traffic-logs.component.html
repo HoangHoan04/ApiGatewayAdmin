@@ -1,0 +1,47 @@
+<div class="traffic-logs-page">
+  <div class="page-header">
+    <div class="header-title-wrap">
+      <h2 class="page-title">
+        <span nz-icon nzType="file-search" nzTheme="outline" class="title-icon"></span>
+        <span>Nhật Ký Truy Vết Lưu Lượng (Live Request Traces)</span>
+      </h2>
+      <p class="page-subtitle">
+        Theo dõi từng yêu cầu đi qua Gateway thời gian thực kèm mã định danh phân tán Correlation ID và độ trễ phản hồi
+      </p>
+    </div>
+    <div class="header-actions">
+      <label nz-checkbox [(ngModel)]="autoRefresh" (ngModelChange)="toggleAutoRefresh($event)">
+        Tự động làm mới (5s)
+      </label>
+      <button nz-button nzDanger (click)="clearLogs()">
+        <span nz-icon nzType="delete" nzTheme="outline"></span>
+        Xóa nhật ký
+      </button>
+    </div>
+  </div>
+
+  <app-filter-custom
+    [id]="'traffic-logs-filter'"
+    [fields]="filterFields"
+    [filters]="filters"
+    [config]="filterConfig"
+    [filterActions]="filterActions"
+    [loading]="loading"
+    (filtersChange)="onFiltersChange($event)"
+  ></app-filter-custom>
+
+  <div class="table-container">
+    <app-table-custom
+      [id]="'traffic-logs-table'"
+      [columns]="columns"
+      [data]="logs"
+      [loading]="loading"
+      [showIndexList]="true"
+      [stripedRows]="true"
+      [pagination]="pagination"
+      [toolbar]="toolbar"
+      (pageChange)="onPageChange($any($event))"
+      (refresh)="loadLogs()"
+    ></app-table-custom>
+  </div>
+</div>

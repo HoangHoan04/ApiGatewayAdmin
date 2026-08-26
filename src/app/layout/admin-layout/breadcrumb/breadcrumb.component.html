@@ -1,0 +1,11 @@
+<nz-breadcrumb>
+  @for (crumb of breadcrumbs; track $index; let last = $last) {
+    <nz-breadcrumb-item>
+      @if (!last) {
+        <a [routerLink]="crumb.url">{{ crumb.label }}</a>
+      } @else {
+        <span class="breadcrumb-last">{{ crumb.label }}</span>
+      }
+    </nz-breadcrumb-item>
+  }
+</nz-breadcrumb>

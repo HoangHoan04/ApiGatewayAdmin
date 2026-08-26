@@ -1,0 +1,88 @@
+<nz-sider
+  [nzCollapsible]="false"
+  [nzWidth]="sidebarWidth"
+  [nzTheme]="isDark ? 'dark' : 'light'"
+  class="admin-sidebar"
+>
+  <div class="sidebar-header" [class.collapsed]="collapsed">
+    <div class="sidebar-logo">
+      <div class="sidebar-brand-wrap">
+        <span
+          class="sidebar-brand"
+          style="
+            font-weight: 800;
+            font-size: 15px;
+            color: var(--primary);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          "
+        >
+          🌐 API Gateway
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <ul nz-menu nzMode="inline" nzTheme="light" class="sidebar-menu" [nzInlineCollapsed]="collapsed">
+    @for (item of menuItems; track item.key) {
+      @if (item.children && item.children.length > 0) {
+        <li nz-submenu [nzTitle]="item.label" [nzIcon]="item.icon || null" nzMatchRouter>
+          <ul>
+            @for (child of item.children; track child.key) {
+              @if (child.children && child.children.length > 0) {
+                <li nz-submenu [nzTitle]="child.label" [nzIcon]="child.icon || null" nzMatchRouter>
+                  <ul>
+                    @for (grand of child.children; track grand.key) {
+                      <li
+                        nz-menu-item
+                        nzMatchRouter
+                        [nzMatchRouterExact]="grand.path === '/'"
+                        [routerLink]="grand.path"
+                      >
+                        @if (grand.icon) {
+                          <span nz-icon [nzType]="grand.icon" nzTheme="outline"></span>
+                        }
+                        @if (!collapsed) {
+                          <span>{{ grand.label }}</span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                </li>
+              } @else {
+                <li
+                  nz-menu-item
+                  nzMatchRouter
+                  [nzMatchRouterExact]="child.path === '/'"
+                  [routerLink]="child.path"
+                >
+                  @if (child.icon) {
+                    <span nz-icon [nzType]="child.icon" nzTheme="outline"></span>
+                  }
+                  @if (!collapsed) {
+                    <span>{{ child.label }}</span>
+                  }
+                </li>
+              }
+            }
+          </ul>
+        </li>
+      } @else {
+        <li
+          nz-menu-item
+          nzMatchRouter
+          [nzMatchRouterExact]="item.path === '/'"
+          [routerLink]="item.path"
+        >
+          <span nz-icon [nzType]="item.icon || 'dashboard'" nzTheme="outline"></span>
+          @if (!collapsed) {
+            <span>{{ item.label }}</span>
+          }
+        </li>
+      }
+    }
+  </ul>
+</nz-sider>

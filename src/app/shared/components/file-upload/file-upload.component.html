@@ -1,0 +1,67 @@
+<div class="file-upload-container" [class.disabled]="disabled">
+  <nz-upload
+    class="custom-uploader"
+    [nzDisabled]="disabled"
+    [nzAccept]="accept"
+    [nzFileList]="fileList"
+    nzListType="picture-card"
+    [nzShowUploadList]="false"
+    [nzShowButton]="true"
+    [nzBeforeUpload]="beforeUpload"
+    [nzCustomRequest]="customRequest"
+  >
+    @if (!fileUrl) {
+      <div class="upload-trigger">
+        <span nz-icon [nzType]="uploading ? 'loading' : 'plus'"></span>
+        <div class="upload-text">
+          {{ uploading ? 'Đang tải lên...' : 'Chọn tệp' }}
+        </div>
+      </div>
+    } @else {
+      <div class="preview-wrapper">
+        <img [src]="fileUrl" alt="preview" class="preview-image" />
+        <div class="preview-actions">
+          <button
+            type="button"
+            class="action-btn"
+            (click)="$event.stopPropagation(); previewImage()"
+            title="Xem"
+          >
+            <span nz-icon nzType="eye"></span>
+          </button>
+          <button
+            type="button"
+            class="action-btn delete-btn"
+            [disabled]="disabled"
+            (click)="$event.stopPropagation(); removeFile()"
+            title="Xóa"
+          >
+            <span nz-icon nzType="delete"></span>
+          </button>
+        </div>
+      </div>
+    }
+  </nz-upload>
+
+  @if (showUrlInput) {
+    <input
+      nz-input
+      class="url-input"
+      [disabled]="disabled"
+      [ngModel]="fileUrl"
+      (ngModelChange)="onUrlInput($event)"
+      placeholder="Hoặc nhập đường dẫn URL hình ảnh..."
+    />
+  }
+</div>
+
+<nz-modal
+  [nzVisible]="previewVisible"
+  [nzContent]="modalContent"
+  [nzFooter]="null"
+  (nzOnCancel)="previewVisible = false"
+>
+  <ng-template #modalContent>
+    <img [src]="fileUrl" [style.width]="'100%'" alt="Full Preview" />
+  </ng-template>
+</nz-modal>

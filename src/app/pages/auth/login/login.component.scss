@@ -1,0 +1,124 @@
+.sso-gateway-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 8px 0;
+
+  .gateway-header {
+    text-align: center;
+
+    .gateway-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #ffffff;
+      font-size: 28px;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
+    }
+
+    .gateway-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 6px 0;
+      letter-spacing: -0.5px;
+    }
+
+    .gateway-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin: 0;
+    }
+  }
+
+
+
+  .gateway-actions {
+    .sso-login-btn {
+      height: 48px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border: none;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.45);
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  .gateway-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+  }
+}
+
+:host-context(.dark) {
+  .sso-gateway-container {
+    .gateway-header {
+      .gateway-title {
+        color: #f8fafc;
+      }
+
+      .gateway-subtitle {
+        color: #94a3b8;
+      }
+    }
+
+    .sso-info-card {
+      background: #1e293b;
+      border-color: #334155;
+
+      .sso-description {
+        color: #cbd5e1;
+
+        strong {
+          color: #f1f5f9;
+        }
+      }
+
+      .app-meta-box {
+        background: #0f172a;
+        border-color: #334155;
+
+        .meta-row {
+          .meta-key {
+            color: #94a3b8;
+          }
+
+          .meta-val {
+            color: #e2e8f0;
+
+            &.mono {
+              background: #1e293b;
+              color: #cbd5e1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
