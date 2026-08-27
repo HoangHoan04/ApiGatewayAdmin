@@ -6,7 +6,8 @@
         <span>Gateway Control Center</span>
       </h2>
       <p class="page-subtitle">
-        Bảng điều khiển lưu lượng, giám sát hiệu năng và trạng thái truyền kết nối Microservices thời gian thực
+        Bảng điều khiển lưu lượng, giám sát hiệu năng và trạng thái truyền kết nối Microservices
+        thời gian thực
       </p>
     </div>
     <div class="header-actions">
@@ -17,7 +18,6 @@
     </div>
   </div>
 
-  <!-- KPI CARDS -->
   <div class="kpi-grid">
     <div class="kpi-card card-requests">
       <div class="kpi-icon-wrap">
@@ -58,22 +58,25 @@
       </div>
       <div class="kpi-info">
         <span class="kpi-label">Định Tuyến & Clusters</span>
-        <span class="kpi-value">{{ routesCount }} <small>Routes</small> / {{ clustersCount }} <small>Clusters</small></span>
+        <span class="kpi-value"
+          >{{ routesCount }} <small>Routes</small> / {{ clustersCount }}
+          <small>Clusters</small></span
+        >
       </div>
       <div class="kpi-badge badge-purple">Active Proxy</div>
     </div>
   </div>
 
-  <!-- MAIN SECTIONS -->
   <div class="dashboard-grid">
-    <!-- MICROSERVICES HEALTH LIST -->
     <div class="panel-card services-health-panel">
       <div class="panel-header">
         <div class="panel-title">
           <span nz-icon nzType="cluster" nzTheme="outline"></span>
           <span>Trạng Thái Sức Khỏe Microservices</span>
         </div>
-        <nz-tag [nzColor]="overallStatusColor">{{ healthData?.overallStatus || 'CHECKING' }}</nz-tag>
+        <nz-tag [nzColor]="overallStatusColor">{{
+          healthData?.overallStatus || 'CHECKING'
+        }}</nz-tag>
       </div>
       <div class="panel-body">
         <div class="service-health-list">
@@ -108,7 +111,6 @@
       </div>
     </div>
 
-    <!-- METRICS & STATUS CODE BREAKDOWN -->
     <div class="panel-card status-distribution-panel">
       <div class="panel-header">
         <div class="panel-title">
@@ -123,7 +125,11 @@
               <span class="status-code code-2xx">2xx (Thành công)</span>
               <span class="bar-count">{{ metrics?.statusDistribution?.['2xx'] || 0 }}</span>
             </div>
-            <nz-progress [nzPercent]="calcPercent(metrics?.statusDistribution?.['2xx'])" [nzStrokeColor]="'#10b981'" [nzShowInfo]="false"></nz-progress>
+            <nz-progress
+              [nzPercent]="calcPercent(metrics?.statusDistribution?.['2xx'])"
+              [nzStrokeColor]="'#10b981'"
+              [nzShowInfo]="false"
+            ></nz-progress>
           </div>
 
           <div class="status-bar-row">
@@ -131,7 +137,11 @@
               <span class="status-code code-3xx">3xx (Chuyển hướng)</span>
               <span class="bar-count">{{ metrics?.statusDistribution?.['3xx'] || 0 }}</span>
             </div>
-            <nz-progress [nzPercent]="calcPercent(metrics?.statusDistribution?.['3xx'])" [nzStrokeColor]="'#3b82f6'" [nzShowInfo]="false"></nz-progress>
+            <nz-progress
+              [nzPercent]="calcPercent(metrics?.statusDistribution?.['3xx'])"
+              [nzStrokeColor]="'#3b82f6'"
+              [nzShowInfo]="false"
+            ></nz-progress>
           </div>
 
           <div class="status-bar-row">
@@ -139,7 +149,11 @@
               <span class="status-code code-4xx">4xx (Lỗi Client)</span>
               <span class="bar-count">{{ metrics?.statusDistribution?.['4xx'] || 0 }}</span>
             </div>
-            <nz-progress [nzPercent]="calcPercent(metrics?.statusDistribution?.['4xx'])" [nzStrokeColor]="'#f59e0b'" [nzShowInfo]="false"></nz-progress>
+            <nz-progress
+              [nzPercent]="calcPercent(metrics?.statusDistribution?.['4xx'])"
+              [nzStrokeColor]="'#f59e0b'"
+              [nzShowInfo]="false"
+            ></nz-progress>
           </div>
 
           <div class="status-bar-row">
@@ -147,7 +161,11 @@
               <span class="status-code code-5xx">5xx (Lỗi Server / Gateway)</span>
               <span class="bar-count">{{ metrics?.statusDistribution?.['5xx'] || 0 }}</span>
             </div>
-            <nz-progress [nzPercent]="calcPercent(metrics?.statusDistribution?.['5xx'])" [nzStrokeColor]="'#ef4444'" [nzShowInfo]="false"></nz-progress>
+            <nz-progress
+              [nzPercent]="calcPercent(metrics?.statusDistribution?.['5xx'])"
+              [nzStrokeColor]="'#ef4444'"
+              [nzShowInfo]="false"
+            ></nz-progress>
           </div>
         </div>
 

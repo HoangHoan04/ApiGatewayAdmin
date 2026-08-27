@@ -6,7 +6,8 @@
         <span>Sơ Đồ Topology & Sức Khỏe Microservices</span>
       </h2>
       <p class="page-subtitle">
-        Trực quan hóa kiến trúc liên kết phân tán và theo dõi trạng thái sống còn (Live Health Ping) của từng Service
+        Trực quan hóa kiến trúc liên kết phân tán và theo dõi trạng thái sống còn (Live Health Ping)
+        của từng Service
       </p>
     </div>
     <div class="header-actions">
@@ -17,7 +18,6 @@
     </div>
   </div>
 
-  <!-- GATEWAY CORE NODE -->
   <div class="gateway-core-card">
     <div class="core-badge">
       <span nz-icon nzType="gateway" nzTheme="outline"></span>
@@ -25,7 +25,8 @@
     <div class="core-info">
       <h3 class="core-title">ERP Enterprise API Gateway (Port 8000)</h3>
       <p class="core-desc">
-        Điểm tiếp nhận lưu lượng duy nhất (Single Entry Point), xử lý CORS, xác thực JWT tập trung, Rate Limiting và định tuyến YARP.
+        Điểm tiếp nhận lưu lượng duy nhất (Single Entry Point), xử lý CORS, xác thực JWT tập trung,
+        Rate Limiting và định tuyến YARP.
       </p>
     </div>
     <div class="core-status">
@@ -34,15 +35,22 @@
     </div>
   </div>
 
-  <!-- MICROSERVICES NODES GRID -->
   <div class="services-grid">
     @for (svc of services; track svc.serviceKey) {
-      <div class="service-node-card" [class.is-healthy]="svc.status === 'HEALTHY'" [class.is-unhealthy]="svc.status === 'UNHEALTHY'">
+      <div
+        class="service-node-card"
+        [class.is-healthy]="svc.status === 'HEALTHY'"
+        [class.is-unhealthy]="svc.status === 'UNHEALTHY'"
+      >
         <div class="node-header">
           <div class="node-icon-box">
             <span nz-icon [nzType]="svc.icon || 'api'" nzTheme="outline"></span>
           </div>
-          <div class="node-status-badge" [class.healthy]="svc.status === 'HEALTHY'" [class.unhealthy]="svc.status === 'UNHEALTHY'">
+          <div
+            class="node-status-badge"
+            [class.healthy]="svc.status === 'HEALTHY'"
+            [class.unhealthy]="svc.status === 'UNHEALTHY'"
+          >
             @if (svc.status === 'HEALTHY') {
               <span class="status-dot"></span>
               <span>Healthy ({{ svc.latencyMs }}ms)</span>

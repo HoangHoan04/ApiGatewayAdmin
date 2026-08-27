@@ -1,5 +1,4 @@
 <div class="routes-page">
-  <!-- PAGE HEADER -->
   <div class="page-header">
     <div class="header-title-wrap">
       <h2 class="page-title">
@@ -7,11 +6,18 @@
         <span>Bảng Định Tuyến & Clusters (Microsoft YARP Rules)</span>
       </h2>
       <p class="page-subtitle">
-        Cấu hình quy tắc chuyển tiếp Reverse Proxy, cụm dịch vụ đích (Clusters) và chính sách bảo mật tập trung
+        Cấu hình quy tắc chuyển tiếp Reverse Proxy, cụm dịch vụ đích (Clusters) và chính sách bảo
+        mật tập trung
       </p>
     </div>
     <div class="header-actions">
-      <button nz-button nzType="default" [nzLoading]="loading" (click)="loadRoutes()" class="action-btn">
+      <button
+        nz-button
+        nzType="default"
+        [nzLoading]="loading"
+        (click)="loadRoutes()"
+        class="action-btn"
+      >
         <span nz-icon nzType="reload" nzTheme="outline"></span>
         <span>Làm mới quy tắc</span>
       </button>
@@ -19,14 +25,12 @@
   </div>
 
   <nz-tabs [(nzSelectedIndex)]="selectedTab" nzType="card" class="custom-routes-tabs">
-    <!-- TAB 1: ROUTES -->
     <nz-tab [nzTitle]="routesTabTitle">
       <ng-template #routesTabTitle>
         <span nz-icon nzType="node-index"></span>
         <span>Quy Tắc Định Tuyến ({{ filteredRoutes.length }})</span>
       </ng-template>
 
-      <!-- TOOLBAR & VIEW MODE SWITCHER -->
       <div class="routes-toolbar">
         <div class="search-box">
           <input
@@ -38,7 +42,6 @@
           />
         </div>
 
-        <!-- FILTER CHIPS -->
         <div class="filter-chips-group">
           <button
             class="chip-btn"
@@ -58,7 +61,6 @@
           }
         </div>
 
-        <!-- VIEW TOGGLE BUTTONS -->
         <div class="view-switch-box">
           <nz-radio-group [(ngModel)]="viewMode" nzButtonStyle="solid">
             <label nz-radio-button nzValue="cards">
@@ -73,12 +75,10 @@
         </div>
       </div>
 
-      <!-- VIEW 1: CARDS GRID -->
       @if (viewMode === 'cards') {
         <div class="routes-cards-grid">
           @for (route of paginatedRoutes; track route.routeId) {
             <div class="route-card" [ngClass]="getClusterTheme(route.clusterId)">
-              <!-- Card Header -->
               <div class="card-header">
                 <div class="header-left">
                   <div class="cluster-badge">
@@ -92,9 +92,13 @@
                 </div>
               </div>
 
-              <!-- Card Body: Path & Details -->
               <div class="card-body">
-                <div class="path-box" (click)="copyPath(route.pathMatch, $event)" nz-tooltip nzTooltipTitle="Nhấp để sao chép path">
+                <div
+                  class="path-box"
+                  (click)="copyPath(route.pathMatch, $event)"
+                  nz-tooltip
+                  nzTooltipTitle="Nhấp để sao chép path"
+                >
                   <span class="path-text">{{ route.pathMatch }}</span>
                   <span nz-icon nzType="copy" nzTheme="outline" class="copy-icon"></span>
                 </div>
@@ -102,7 +106,9 @@
                 <div class="meta-details">
                   <div class="meta-row">
                     <span class="meta-label">Đích Forward:</span>
-                    <span class="meta-value destination">{{ getClusterDestination(route.clusterId) }}</span>
+                    <span class="meta-value destination">{{
+                      getClusterDestination(route.clusterId)
+                    }}</span>
                   </div>
                   <div class="meta-row">
                     <span class="meta-label">Chính sách Xác Thực:</span>
@@ -110,18 +116,26 @@
                       class="auth-policy-tag"
                       [class.anonymous]="route.authorizationPolicy === 'Anonymous'"
                     >
-                      <span nz-icon [nzType]="route.authorizationPolicy === 'Anonymous' ? 'unlock' : 'safety-certificate'"></span>
+                      <span
+                        nz-icon
+                        [nzType]="
+                          route.authorizationPolicy === 'Anonymous'
+                            ? 'unlock'
+                            : 'safety-certificate'
+                        "
+                      ></span>
                       {{ route.authorizationPolicy || 'Anonymous' }}
                     </span>
                   </div>
                   <div class="meta-row">
                     <span class="meta-label">Rate Limiter:</span>
-                    <span class="meta-value">{{ route.rateLimiterPolicy || 'Mặc định (200 req/m)' }}</span>
+                    <span class="meta-value">{{
+                      route.rateLimiterPolicy || 'Mặc định (200 req/m)'
+                    }}</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Card Footer -->
               <div class="card-footer">
                 <span class="forward-indicator">
                   <span nz-icon nzType="swap-right" nzTheme="outline" class="arrow-icon"></span>
@@ -142,7 +156,6 @@
           }
         </div>
 
-        <!-- CARDS PAGINATION -->
         @if (filteredRoutes.length > pagination.pageSize) {
           <div class="pagination-wrapper">
             <nz-pagination
@@ -159,7 +172,6 @@
         }
       }
 
-      <!-- VIEW 2: TABLE VIEW -->
       @if (viewMode === 'table') {
         <div class="table-container">
           <app-table-custom
@@ -178,7 +190,6 @@
       }
     </nz-tab>
 
-    <!-- TAB 2: CLUSTERS -->
     <nz-tab [nzTitle]="clustersTabTitle">
       <ng-template #clustersTabTitle>
         <span nz-icon nzType="apartment"></span>
