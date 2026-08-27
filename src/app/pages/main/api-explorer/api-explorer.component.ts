@@ -38,8 +38,9 @@ export class ApiExplorerComponent implements OnInit {
         this.services = docs || [];
         this.applyFilter();
         if (this.services.length > 0) {
-          // If none selected or previous selection no longer in list, select first
-          const current = this.services.find((s) => s.serviceKey === this.selectedService?.serviceKey);
+          const current = this.services.find(
+            (s) => s.serviceKey === this.selectedService?.serviceKey,
+          );
           this.selectService(current || this.services[0]);
         }
         this.loading = false;

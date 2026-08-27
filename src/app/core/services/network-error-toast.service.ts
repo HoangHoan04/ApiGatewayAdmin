@@ -22,7 +22,9 @@ export class NetworkErrorToastService {
 
   notify(): string {
     const text = this.text();
-    this.message.error(text);
+    setTimeout(() => {
+      this.message.error(text);
+    }, 0);
     return text;
   }
 

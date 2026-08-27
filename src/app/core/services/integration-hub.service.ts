@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EndpointService } from './endpoint.service';
 
@@ -65,7 +65,7 @@ export interface SyncLog {
   payloadJson?: string;
   responseJson?: string;
   sourceRefId?: string;
-  status: string;   // 'Pending' | 'InProgress' | 'Success' | 'Failed' | 'Retrying' | 'Dead'
+  status: string;
   retryCount: number;
   maxRetries: number;
   nextRetryAt?: string;
@@ -114,17 +114,18 @@ export interface AdapterInfo {
 export class IntegrationHubService {
   constructor(
     private http: HttpClient,
-    private endpoints: EndpointService
+    private endpoints: EndpointService,
   ) {}
 
-  // ─── Dashboard ───────────────────────────────────────────────────────────────
   getDashboardStats(): Observable<DashboardStats> {
     return this.http.post<DashboardStats>(this.endpoints.DASHBOARD.STATS, {});
   }
 
-  // ─── Mappings ────────────────────────────────────────────────────────────────
   getMappings(query: any = {}): Observable<PagedResult<IntegrationMapping>> {
-    return this.http.post<PagedResult<IntegrationMapping>>(this.endpoints.MAPPINGS.PAGINATION, query);
+    return this.http.post<PagedResult<IntegrationMapping>>(
+      this.endpoints.MAPPINGS.PAGINATION,
+      query,
+    );
   }
 
   getMappingById(id: string): Observable<IntegrationMapping> {
@@ -147,9 +148,11 @@ export class IntegrationHubService {
     return this.http.post<{ isActive: boolean }>(this.endpoints.MAPPINGS.TOGGLE_ACTIVE, { id });
   }
 
-  // ─── Credentials ─────────────────────────────────────────────────────────────
   getCredentials(query: any = {}): Observable<PagedResult<IntegrationCredential>> {
-    return this.http.post<PagedResult<IntegrationCredential>>(this.endpoints.CREDENTIALS.PAGINATION, query);
+    return this.http.post<PagedResult<IntegrationCredential>>(
+      this.endpoints.CREDENTIALS.PAGINATION,
+      query,
+    );
   }
 
   getCredentialById(id: string): Observable<IntegrationCredential> {
@@ -172,7 +175,6 @@ export class IntegrationHubService {
     return this.http.post<any>(this.endpoints.CREDENTIALS.DELETE, { id });
   }
 
-  // ─── Sync Logs ───────────────────────────────────────────────────────────────
   getSyncLogs(query: any = {}): Observable<PagedResult<SyncLog>> {
     return this.http.post<PagedResult<SyncLog>>(this.endpoints.SYNC_LOGS.PAGINATION, query);
   }
@@ -185,7 +187,6 @@ export class IntegrationHubService {
     return this.http.post<any>(this.endpoints.SYNC_LOGS.RETRY, { logId });
   }
 
-  // ─── Webhook Logs ────────────────────────────────────────────────────────────
   getWebhookLogs(query: any = {}): Observable<PagedResult<WebhookLog>> {
     return this.http.post<PagedResult<WebhookLog>>(this.endpoints.WEBHOOK_LOGS.PAGINATION, query);
   }
@@ -194,7 +195,6 @@ export class IntegrationHubService {
     return this.http.post<WebhookLog>(this.endpoints.WEBHOOK_LOGS.DETAIL, { id });
   }
 
-  // ─── Adapters ────────────────────────────────────────────────────────────────
   getAdapters(): Observable<AdapterInfo[]> {
     return this.http.post<AdapterInfo[]>(this.endpoints.ADAPTERS.LIST, {});
   }
@@ -203,7 +203,6 @@ export class IntegrationHubService {
     return this.http.post<any>(this.endpoints.ADAPTERS.TEST, data);
   }
 
-  // ─── Outbound Event Publish ──────────────────────────────────────────────────
   publishEvent(data: any): Observable<any> {
     return this.http.post<any>(this.endpoints.SYNC.PUBLISH, data);
   }
