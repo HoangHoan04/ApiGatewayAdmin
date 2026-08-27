@@ -1,5 +1,4 @@
 <div class="api-explorer-page">
-  <!-- PAGE HEADER -->
   <div class="page-header">
     <div class="header-title-wrap">
       <h2 class="page-title">
@@ -7,22 +6,33 @@
         <span>Unified API Explorer (OpenAPI Swagger Aggregator)</span>
       </h2>
       <p class="page-subtitle">
-        Khám phá toàn bộ tài liệu OpenAPI, kiểm tra trạng thái hoạt động thực tế và kiểm thử trực tiếp qua API Gateway
+        Khám phá toàn bộ tài liệu OpenAPI, kiểm tra trạng thái hoạt động thực tế và kiểm thử trực
+        tiếp qua API Gateway
       </p>
     </div>
     <div class="header-actions">
-      <a nz-button nzType="primary" href="http://localhost:8000/swagger" target="_blank" class="action-btn">
+      <a
+        nz-button
+        nzType="primary"
+        href="http://localhost:8000/swagger"
+        target="_blank"
+        class="action-btn"
+      >
         <span nz-icon nzType="export" nzTheme="outline"></span>
         <span>Mở Swagger Toàn Màn Hình</span>
       </a>
-      <button nz-button nzType="default" [nzLoading]="loading" (click)="loadDocs()" class="action-btn">
+      <button
+        nz-button
+        nzType="default"
+        [nzLoading]="loading"
+        (click)="loadDocs()"
+        class="action-btn"
+      >
         <span nz-icon nzType="reload" nzTheme="outline"></span>
         <span>Làm mới & Ping lại</span>
       </button>
     </div>
   </div>
-
-  <!-- SEARCH & FILTER TOOLBAR -->
   <div class="explorer-toolbar">
     <div class="search-box">
       <input
@@ -42,7 +52,6 @@
     </div>
   </div>
 
-  <!-- DYNAMIC FLEXIBLE SERVICE CARDS GRID -->
   <div class="services-cards-grid">
     @for (svc of filteredServices; track svc.serviceKey) {
       <div
@@ -51,7 +60,6 @@
         [ngClass]="'theme-' + svc.serviceKey.toLowerCase()"
         (click)="selectService(svc, true)"
       >
-        <!-- Card Header -->
         <div class="card-header">
           <div class="icon-avatar">
             <span nz-icon [nzType]="svc.icon || 'api'" nzTheme="outline"></span>
@@ -160,7 +168,9 @@
           <span class="frame-title">
             OpenAPI Viewer: <strong>{{ selectedService?.name || 'API Gateway Management' }}</strong>
           </span>
-          <span class="frame-url-badge">{{ selectedService?.baseUrl || 'http://localhost:8000' }}/swagger</span>
+          <span class="frame-url-badge"
+            >{{ selectedService?.baseUrl || 'http://localhost:8000' }}/swagger</span
+          >
         </div>
       </div>
       <div class="frame-bar-right">
@@ -168,7 +178,11 @@
           nz-button
           nzType="default"
           nzSize="small"
-          [href]="selectedService ? getServiceSwaggerLink(selectedService) : 'http://localhost:8000/swagger'"
+          [href]="
+            selectedService
+              ? getServiceSwaggerLink(selectedService)
+              : 'http://localhost:8000/swagger'
+          "
           target="_blank"
           class="open-external-btn"
         >
