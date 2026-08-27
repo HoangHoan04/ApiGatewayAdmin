@@ -80,7 +80,7 @@ export const CommonFilterActions = {
 
   clear: (onClick?: () => void): FilterAction => ({
     key: 'clear',
-    label: 'Làm lại',
+    label: 'Làm mới',
     icon: 'close-circle',
     severity: 'secondary',
     onClick,

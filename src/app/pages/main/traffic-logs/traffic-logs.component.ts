@@ -1,6 +1,7 @@
+import { enumData } from '@/app/core/constants/enums';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { interval, Subscription } from 'rxjs';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { interval, Subscription } from 'rxjs';
 import {
   GatewayManagementService,
   RequestTraceItemDto,
@@ -60,13 +61,10 @@ export class TrafficLogsComponent implements OnInit, OnDestroy {
       placeholder: 'Tất cả phương thức',
       col: 8,
       allowClear: true,
-      options: [
-        { label: 'POST', value: 'POST' },
-        { label: 'GET', value: 'GET' },
-        { label: 'PUT', value: 'PUT' },
-        { label: 'DELETE', value: 'DELETE' },
-        { label: 'OPTIONS', value: 'OPTIONS' },
-      ],
+      options: Object.values(enumData.HTTP_METHOD).map((m: any) => ({
+        label: m.name,
+        value: m.code,
+      })),
     },
     {
       key: 'targetCluster',
@@ -75,15 +73,10 @@ export class TrafficLogsComponent implements OnInit, OnDestroy {
       placeholder: 'Tất cả cụm dịch vụ',
       col: 8,
       allowClear: true,
-      options: [
-        { label: 'auth-cluster', value: 'auth-cluster' },
-        { label: 'hrm-cluster', value: 'hrm-cluster' },
-        { label: 'integration-hub-cluster', value: 'integration-hub-cluster' },
-        { label: 'notifications-hub-cluster', value: 'notifications-hub-cluster' },
-        { label: 'ai-gateway-cluster', value: 'ai-gateway-cluster' },
-        { label: 'wms-cluster', value: 'wms-cluster' },
-        { label: 'tms-cluster', value: 'tms-cluster' },
-      ],
+      options: Object.values(enumData.GATEWAY_CLUSTER).map((c: any) => ({
+        label: c.name,
+        value: c.code,
+      })),
     },
   ];
 
@@ -98,9 +91,9 @@ export class TrafficLogsComponent implements OnInit, OnDestroy {
   };
 
   pagination: PaginationConfig = {
-    current: 1,
-    pageSize: 20,
-    total: 0,
+    current: enumData.PAGE.PAGE_INDEX,
+    pageSize: enumData.PAGE.PAGE_SIZE,
+    total: enumData.PAGE.TOTAL,
     showTotal: true,
   };
 
@@ -115,18 +108,17 @@ export class TrafficLogsComponent implements OnInit, OnDestroy {
       field: 'correlationId',
       header: 'Correlation ID',
       width: '200px',
-      render: (v) => `<span style="font-family: monospace; font-size: 11px; background: #f1f5f9; padding: 2px 5px; border-radius: 4px;">${v}</span>`,
+      render: (v) =>
+        `<span style="font-family: monospace; font-size: 11px; background: #f1f5f9; padding: 2px 5px; border-radius: 4px;">${v}</span>`,
     },
     {
       field: 'method',
       header: 'Method',
       type: 'tag',
-      tagSeverity: (v) => {
-        if (v === 'POST') return 'primary';
-        if (v === 'GET') return 'success';
-        if (v === 'DELETE') return 'danger';
-        return 'secondary';
-      },
+      render: (v: string) =>
+        enumData.HTTP_METHOD[v as keyof typeof enumData.HTTP_METHOD]?.name || v,
+      tagSeverity: (v: string) =>
+        enumData.HTTP_METHOD[v as keyof typeof enumData.HTTP_METHOD]?.severity || 'secondary',
       width: '95px',
     },
     {
@@ -156,6 +148,8 @@ export class TrafficLogsComponent implements OnInit, OnDestroy {
       field: 'targetCluster',
       header: 'Cụm Cluster',
       type: 'tag',
+      render: (v: string) =>
+        enumData.GATEWAY_CLUSTER[v as keyof typeof enumData.GATEWAY_CLUSTER]?.name || v,
       tagSeverity: () => 'secondary',
       width: '170px',
     },
@@ -173,7 +167,31 @@ export class TrafficLogsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.loadClusters();
     this.loadLogs();
+  }
+
+  loadClusters(): void {
+    this.gatewayService.getRoutes().subscribe({
+      next: (res) => {
+        if (res?.clusters?.length) {
+          const dynamicOptions = res.clusters.map((c) => {
+            const config =
+              enumData.GATEWAY_CLUSTER[c.clusterId as keyof typeof enumData.GATEWAY_CLUSTER];
+            return {
+              label: config ? `${config.name} (${c.clusterId})` : c.clusterId,
+              value: c.clusterId,
+            };
+          });
+          const clusterField = this.filterFields.find((f) => f.key === 'targetCluster');
+          if (clusterField) {
+            clusterField.options = dynamicOptions;
+            this.cdr.markForCheck();
+          }
+        }
+      },
+      error: () => {},
+    });
   }
 
   ngOnDestroy(): void {

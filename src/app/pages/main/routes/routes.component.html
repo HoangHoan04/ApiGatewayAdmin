@@ -29,23 +29,13 @@
       <!-- TOOLBAR & VIEW MODE SWITCHER -->
       <div class="routes-toolbar">
         <div class="search-box">
-          <nz-input-group [nzPrefix]="prefixSearch" [nzSuffix]="suffixClear">
-            <input
-              type="text"
-              nz-input
-              [(ngModel)]="searchKeyword"
-              (ngModelChange)="onSearchChange()"
-              placeholder="Tìm theo Route ID, đường dẫn /api/..., hoặc cụm Cluster..."
-            />
-          </nz-input-group>
-          <ng-template #prefixSearch>
-            <span nz-icon nzType="search" class="search-icon"></span>
-          </ng-template>
-          <ng-template #suffixClear>
-            @if (searchKeyword) {
-              <span nz-icon nzType="close-circle" nzTheme="fill" class="clear-icon" (click)="searchKeyword = ''; onSearchChange()"></span>
-            }
-          </ng-template>
+          <input
+            type="text"
+            nz-input
+            [(ngModel)]="searchKeyword"
+            (ngModelChange)="onSearchChange()"
+            placeholder="Tìm theo Route ID, đường dẫn /api/..., hoặc cụm Cluster..."
+          />
         </div>
 
         <!-- FILTER CHIPS -->

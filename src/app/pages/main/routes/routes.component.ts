@@ -1,3 +1,4 @@
+import { enumData } from '@/app/core/constants/enums';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import {
@@ -32,9 +33,9 @@ export class RoutesComponent implements OnInit {
   selectedAuthPolicy: string | null = null;
 
   pagination: PaginationConfig = {
-    current: 1,
-    pageSize: 12,
-    total: 0,
+    current: enumData.PAGE.PAGE_INDEX,
+    pageSize: enumData.PAGE.PAGE_SIZE,
+    total: enumData.PAGE.TOTAL,
     showTotal: true,
   };
 
