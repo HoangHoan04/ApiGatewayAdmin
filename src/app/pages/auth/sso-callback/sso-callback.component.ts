@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -22,52 +23,56 @@ export class SsoCallbackComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this.processSsoToken();
-    }, 0);
-  }
-
-  private processSsoToken(): void {
     const params = this.route.snapshot.queryParams;
-    const token = params['sso_token'] || params['token'] || params['accessToken'] || params['access_token'];
-    const refreshToken = params['refresh_token'] || params['refreshToken'];
     const error = params['error'] || params['message'];
-
     if (error) {
       this.loading = false;
-      this.errorMessage = error || 'Xác thực qua Cổng SSO thất bại hoặc đã bị hủy.';
+      this.errorMessage = error;
       this.cdr.detectChanges();
       return;
     }
 
-    if (token) {
-      sessionStorage.setItem('auth_token', token);
-      if (refreshToken) {
-        sessionStorage.setItem('auth_refresh_token', refreshToken);
+    const code = params['code'];
+    const state = params['state'] || '';
+    if (!code) {
+      if (this.authService.isLoggedIn) {
+        this.router.navigateByUrl('/');
+        return;
       }
-
-      this.authService.getInfoUser().subscribe({
-        next: (user) => {
-          this.loading = false;
-          this.cdr.detectChanges();
-          this.message.success(`Đăng nhập thành công! Chào mừng ${user?.fullName || user?.email || 'bạn'}.`);
-          this.router.navigateByUrl('/');
-        },
-        error: () => {
-          this.loading = false;
-          this.cdr.detectChanges();
-          this.message.success('Đăng nhập SSO thành công!');
-          this.router.navigateByUrl('/');
-        },
-      });
-    } else {
       this.loading = false;
-      this.errorMessage = 'Không tìm thấy Token phản hồi từ Cổng Xác thực Tập trung. Vui lòng đăng nhập lại.';
+      this.errorMessage = 'Thiếu authorization code từ Auth. Không nhận token trên URL. Bạn vừa mở trực tiếp trang callback thay vì đăng nhập qua cổng Auth.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    try {
+      this.authService
+        .exchangeAuthorizationCode(
+          code,
+          state,
+          `${window.location.origin}/auth/callback`,
+          environment.clientId || 'api-gateway',
+        )
+        .subscribe({
+          next: (user) => {
+            this.loading = false;
+            this.message.success(`Đăng nhập thành công! Chào mừng ${user?.fullName || user?.email || 'bạn'}.`);
+            this.router.navigateByUrl('/');
+          },
+          error: (err) => {
+            this.loading = false;
+            this.errorMessage = err?.error?.message || err?.message || 'Đổi code lấy token thất bại.';
+            this.cdr.detectChanges();
+          },
+        });
+    } catch (err: any) {
+      this.loading = false;
+      this.errorMessage = err?.message || 'PKCE không hợp lệ.';
       this.cdr.detectChanges();
     }
   }
 
   retryLogin(): void {
-    this.router.navigateByUrl('/auth/login');
+    this.router.navigate(['/auth/login'], { queryParams: { auto_sso: 'true' } });
   }
 }

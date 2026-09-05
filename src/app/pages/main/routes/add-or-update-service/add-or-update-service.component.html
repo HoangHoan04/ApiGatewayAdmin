@@ -1,0 +1,204 @@
+<form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="onSubmit()" class="service-sheet-form">
+  <!-- SECTION 1: THÔNG TIN DỊCH VỤ -->
+  <div class="form-section">
+    <div class="section-title">
+      <span nz-icon nzType="api" nzTheme="outline"></span>
+      <span>Thông tin Dịch Vụ API (Downstream Microservice)</span>
+    </div>
+
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>Mã dịch vụ (Code Slug)</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập mã viết liền không dấu (vd: hrm, wms, ai, tms)">
+            <input
+              nz-input
+              formControlName="code"
+              (blur)="onCodeInputBlur()"
+              placeholder="hrm, wms, tms, ai-service..."
+            />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>Tên hiển thị dịch vụ</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập tên dịch vụ">
+            <input
+              nz-input
+              formControlName="name"
+              placeholder="Quản lý Nhân sự & Tiền lương (HRM)"
+            />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="16">
+        <nz-form-item>
+          <nz-form-label nzRequired>Địa chỉ máy chủ gốc (Base URL)</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập địa chỉ URL máy chủ (vd: http://localhost:5001)">
+            <nz-input-group [nzPrefix]="urlPrefixTpl">
+              <input
+                nz-input
+                formControlName="baseUrl"
+                placeholder="http://localhost:5001 hoặc https://hrm.company.internal"
+              />
+            </nz-input-group>
+            <ng-template #urlPrefixTpl>
+              <span nz-icon nzType="global" nzTheme="outline" style="color: #3b82f6"></span>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="8">
+        <nz-form-item>
+          <nz-form-label nzRequired>Health Check Path</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập đường dẫn kiểm tra sức khỏe">
+            <input nz-input formControlName="healthPath" placeholder="/health" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="24">
+        <nz-form-item>
+          <nz-form-label>Biểu tượng nhận diện (Icon)</nz-form-label>
+          <nz-form-control>
+            <div class="icon-picker-wrap">
+              <div class="icon-preset-list">
+                @for (p of presetIcons; track p.value) {
+                  <button
+                    type="button"
+                    class="icon-chip"
+                    [class.active]="form.get('icon')?.value === p.value"
+                    (click)="selectPresetIcon(p.value)"
+                  >
+                    <span nz-icon [nzType]="p.icon" nzTheme="outline"></span>
+                    <span>{{ p.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="24">
+        <nz-form-item>
+          <nz-form-label>Mô tả chức năng & phạm vi</nz-form-label>
+          <nz-form-control>
+            <textarea
+              nz-input
+              formControlName="description"
+              rows="2"
+              placeholder="Ghi chú nghiệp vụ, cổng kết nối hoặc lưu ý triển khai cho microservice này..."
+            ></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: CẤU HÌNH ĐỊNH TUYẾN YARP GATEWAY -->
+  <div class="form-section">
+    <div class="section-title-with-action">
+      <div class="section-title">
+        <span nz-icon nzType="branches" nzTheme="outline"></span>
+        <span>Thiết Lập Tự Động Định Tuyến & Cụm YARP Gateway</span>
+      </div>
+      @if (!isEdit) {
+        <label nz-checkbox formControlName="autoConfigureYarp" class="auto-yarp-checkbox">
+          <span>Tự động kích hoạt Gateway Route</span>
+        </label>
+      }
+    </div>
+
+    @if (form.get('autoConfigureYarp')?.value || isEdit) {
+      <div class="yarp-config-box">
+        <div nz-row [nzGutter]="16">
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Cụm Đích (Cluster ID)</nz-form-label>
+              <nz-form-control nzErrorTip="Vui lòng nhập Cluster ID">
+                <input nz-input formControlName="clusterId" placeholder="hrm-cluster" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="12">
+            <nz-form-item>
+              <nz-form-label nzRequired>Mã Route (Route ID)</nz-form-label>
+              <nz-form-control nzErrorTip="Vui lòng nhập Route ID">
+                <input nz-input formControlName="routeId" placeholder="hrm-route" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="14">
+            <nz-form-item>
+              <nz-form-label nzRequired>Đường Dẫn Khớp (Path Match)</nz-form-label>
+              <nz-form-control nzErrorTip="Vui lòng nhập đường dẫn quy tắc chuyển tiếp">
+                <input
+                  nz-input
+                  formControlName="pathMatch"
+                  placeholder="/api/v1/hrm/{**catch-all}"
+                />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="10">
+            <nz-form-item>
+              <nz-form-label>Chính sách Xác thực</nz-form-label>
+              <nz-form-control>
+                <nz-select formControlName="authorizationPolicy" style="width: 100%">
+                  <nz-option
+                    nzValue="Bearer"
+                    nzLabel="Bearer (Bảo mật JWT Token)"
+                  ></nz-option>
+                  <nz-option
+                    nzValue="Anonymous"
+                    nzLabel="Anonymous (Công khai - Public API)"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="yarp-disabled-note">
+        <span nz-icon nzType="info-circle" nzTheme="outline"></span>
+        <span>Bạn có thể bỏ qua bước này để tự tạo Cluster và Route riêng rẽ sau trong tab Quy Tắc Định Tuyến.</span>
+      </div>
+    }
+  </div>
+
+  <!-- SECTION 3: TRẠNG THÁI -->
+  <div class="form-section status-section">
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item class="status-item">
+          <label nz-checkbox formControlName="isActive">
+            <strong>Kích hoạt trạng thái hoạt động của Dịch Vụ API này</strong>
+          </label>
+          <span class="status-hint">
+            (Khi tắt, toàn bộ lưu lượng định tuyến tới dịch vụ này sẽ tạm dừng xử lý trên Gateway)
+          </span>
+        </nz-form-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER ACTIONS -->
+  <div class="sheet-footer-actions">
+    <button nz-button type="button" (click)="onCancel()" class="btn-cancel">
+      Hủy
+    </button>
+    <button nz-button nzType="primary" type="submit" [nzLoading]="loading" class="btn-submit">
+      <span nz-icon [nzType]="isEdit ? 'save' : 'plus'" nzTheme="outline"></span>
+      <span>{{ isEdit ? 'Lưu thay đổi dịch vụ' : 'Thêm dịch vụ & Kích hoạt' }}</span>
+    </button>
+  </div>
+</form>

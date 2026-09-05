@@ -18,9 +18,16 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const skipAuthHeader =
+      req.url.includes('/oauth/token') ||
+      req.url.includes('/auth/login') ||
+      req.url.includes('/auth/refresh') ||
+      req.url.includes('/auth/forgot-password') ||
+      req.url.includes('/auth/reset-password');
+
     const token = this.authService.token;
     let authReq = req;
-    if (token) {
+    if (token && !skipAuthHeader) {
       authReq = this.addTokenHeader(req, token);
     }
 

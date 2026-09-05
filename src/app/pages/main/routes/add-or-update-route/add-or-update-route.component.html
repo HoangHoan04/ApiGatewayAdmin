@@ -1,0 +1,191 @@
+<form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="onSubmit()" class="route-sheet-form">
+  <!-- SECTION 1: THÔNG TIN ROUTE -->
+  <div class="form-section">
+    <div class="section-title">
+      <span nz-icon nzType="branches" nzTheme="outline"></span>
+      <span>Thông Tin Quy Tắc Định Tuyến (YARP Route)</span>
+    </div>
+
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>Mã Route ID</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập Route ID duy nhất">
+            <input
+              nz-input
+              formControlName="routeId"
+              placeholder="hrm-route, auth-route, ai-route..."
+            />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label nzRequired>Cụm Đích (Cluster ID)</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng chọn hoặc nhập Cluster ID">
+            <nz-select
+              formControlName="clusterId"
+              nzShowSearch
+              nzAllowClear
+              nzPlaceHolder="Chọn cụm Cluster đích"
+              style="width: 100%"
+            >
+              @for (c of clusters; track c.clusterId) {
+                <nz-option [nzValue]="c.clusterId" [nzLabel]="c.clusterId"></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="24">
+        <nz-form-item>
+          <nz-form-label nzRequired>
+            <span>Đường Dẫn Khớp (Path Match Pattern)</span>
+          </nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập đường dẫn khớp">
+            <nz-input-group [nzSuffix]="testActionTpl">
+              <input
+                nz-input
+                formControlName="pathMatch"
+                placeholder="/api/v1/hrm/{**catch-all}"
+              />
+            </nz-input-group>
+            <ng-template #testActionTpl>
+              <button
+                nz-button
+                type="button"
+                nzType="link"
+                nzSize="small"
+                [nzLoading]="testing"
+                (click)="testRouteMatch()"
+                title="Kiểm tra khớp đường dẫn"
+              >
+                <span nz-icon nzType="thunderbolt" nzTheme="outline"></span> Test Match
+              </button>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="24">
+        <nz-form-item>
+          <nz-form-label>Phương Thức HTTP Hỗ Trợ (Methods)</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              nzMode="multiple"
+              formControlName="methods"
+              nzPlaceHolder="Chọn phương thức HTTP"
+              style="width: 100%"
+            >
+              @for (m of availableMethods; track m) {
+                <nz-option [nzValue]="m" [nzLabel]="m"></nz-option>
+              }
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: BẢO MẬT & RATE LIMIT -->
+  <div class="form-section">
+    <div class="section-title">
+      <span nz-icon nzType="safety-certificate" nzTheme="outline"></span>
+      <span>Chính Sách Bảo Mật & Lưu Lượng</span>
+    </div>
+
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label>Chính Sách Xác Thực (Auth Policy)</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="authorizationPolicy" style="width: 100%">
+              <nz-option nzValue="Bearer" nzLabel="Bearer (Bảo mật JWT Token)"></nz-option>
+              <nz-option nzValue="Anonymous" nzLabel="Anonymous (Công khai - Public API)"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label>Giới Hạn Tần Suất (Rate Limit Policy)</nz-form-label>
+          <nz-form-control>
+            <input
+              nz-input
+              formControlName="rateLimiterPolicy"
+              placeholder="Default, strict-rate, free-tier..."
+            />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label>Thời Gian Chờ Tối Đa (Timeout Giây)</nz-form-label>
+          <nz-form-control>
+            <nz-input-number
+              formControlName="timeout"
+              [nzMin]="1"
+              [nzMax]="600"
+              style="width: 100%"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col [nzSpan]="12">
+        <nz-form-item>
+          <nz-form-label>Truy cập công khai</nz-form-label>
+          <nz-form-control>
+            <label nz-checkbox formControlName="isPublic" style="margin-top: 6px">
+              Cho phép Anonymous truy cập không cần Token
+            </label>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: TRẠNG THÁI -->
+  <div class="form-section status-section">
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item class="status-item">
+          <label nz-checkbox formControlName="isActive">
+            <strong>Kích hoạt quy tắc định tuyến này ngay lập tức</strong>
+          </label>
+        </nz-form-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER ACTIONS -->
+  <div class="sheet-footer-actions">
+    @if (isEdit) {
+      <button
+        nz-button
+        type="button"
+        nzDanger
+        nzType="default"
+        (click)="deleteRoute()"
+        class="btn-delete"
+      >
+        <span nz-icon nzType="delete" nzTheme="outline"></span>
+        <span>Xóa quy tắc</span>
+      </button>
+    }
+
+    <div class="right-actions">
+      <button nz-button type="button" (click)="onCancel()" class="btn-cancel">
+        Hủy
+      </button>
+      <button nz-button nzType="primary" type="submit" [nzLoading]="loading" class="btn-submit">
+        <span nz-icon [nzType]="isEdit ? 'save' : 'plus'" nzTheme="outline"></span>
+        <span>{{ isEdit ? 'Lưu quy tắc & Reload' : 'Thêm quy tắc & Reload' }}</span>
+      </button>
+    </div>
+  </div>
+</form>

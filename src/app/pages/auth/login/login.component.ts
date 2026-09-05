@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -10,13 +10,15 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  ssoLoginUrl = environment.ssoLoginUrl || 'http://localhost:4300/auth/login';
-  clientId = environment.clientId || 'integration-hub';
+  ssoLoginUrl = environment.ssoLoginUrl || 'http://localhost:4300/auth/sso';
+  clientId = environment.clientId || 'api-gateway';
   redirectUri = `${window.location.origin}/auth/callback`;
   redirecting = false;
+  error = '';
 
   constructor(
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
     private readonly auth: AuthService,
   ) {}
 
@@ -25,19 +27,21 @@ export class LoginComponent implements OnInit {
       this.router.navigateByUrl('/');
       return;
     }
+    const q = this.route.snapshot.queryParams;
+    if (q['auto_sso'] === 'true' || q['sso'] === 'true') {
+      this.redirectToSso();
+    }
   }
 
-  redirectToSso(): void {
+  async redirectToSso(): Promise<void> {
     this.redirecting = true;
+    this.error = '';
     try {
-      const targetUrl = new URL(this.ssoLoginUrl);
-      targetUrl.searchParams.set('returnUrl', this.redirectUri);
-      targetUrl.searchParams.set('redirectUri', this.redirectUri);
-      targetUrl.searchParams.set('clientId', this.clientId);
-      window.location.href = targetUrl.toString();
+      const url = await this.auth.beginPkceLogin(this.ssoLoginUrl, this.clientId, this.redirectUri);
+      window.location.href = url;
     } catch {
-      const fallbackUrl = `${this.ssoLoginUrl}?returnUrl=${encodeURIComponent(this.redirectUri)}&clientId=${encodeURIComponent(this.clientId)}`;
-      window.location.href = fallbackUrl;
+      this.redirecting = false;
+      this.error = 'Không khởi tạo được PKCE. Thử lại.';
     }
   }
 }

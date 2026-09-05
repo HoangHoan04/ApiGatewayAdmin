@@ -10,6 +10,8 @@ import { RoutesComponent } from './routes/routes.component';
 import { TrafficLogsComponent } from './traffic-logs/traffic-logs.component';
 import { SecurityComponent } from './security/security.component';
 import { ApiExplorerComponent } from './api-explorer/api-explorer.component';
+import { AddOrUpdateServiceModalComponent } from './routes/add-or-update-service/add-or-update-service.component';
+import { AddOrUpdateRouteModalComponent } from './routes/add-or-update-route/add-or-update-route.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -29,6 +31,8 @@ const routes: Routes = [
     TrafficLogsComponent,
     SecurityComponent,
     ApiExplorerComponent,
+    AddOrUpdateServiceModalComponent,
+    AddOrUpdateRouteModalComponent,
   ],
   imports: [
     SharedModule,

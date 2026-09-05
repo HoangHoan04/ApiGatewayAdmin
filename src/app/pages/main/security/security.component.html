@@ -3,13 +3,13 @@
     <div class="header-title-wrap">
       <h2 class="page-title">
         <span nz-icon nzType="safety-certificate" nzTheme="outline" class="title-icon"></span>
-        <span>Bảo Mật & Giới Hạn Tốc Độ (Rate Limiting & Security)</span>
+        <span>Bảo Mật & Giới Hạn Tốc Độ</span>
       </h2>
       <p class="page-subtitle">
-        Cấu hình chính sách bảo vệ chống DDoS, kiểm soát tần suất request (Rate Limit), xác thực JWT
-        và danh sách CORS
+        JWT JWKS tại cổng, Redis rate limit, IP allow/deny — dữ liệu đọc từ Gateway đang chạy
       </p>
     </div>
+    <button nz-button nzType="default" [nzLoading]="loading" (click)="reload()">Làm mới</button>
   </div>
 
   <div class="security-grid">
@@ -18,39 +18,38 @@
         <div class="sec-title-wrap">
           <span nz-icon nzType="dashboard" nzTheme="outline" class="sec-icon"></span>
           <div>
-            <h3 class="sec-title">Chính Sách Giới Hạn Tốc Độ (Rate Limiting)</h3>
-            <span class="sec-sub"
-              >Bảo vệ các endpoint trước hành vi spam và tấn công brute-force</span
-            >
+            <h3 class="sec-title">Rate limiting (Redis)</h3>
+            <span class="sec-sub">Global theo IP + per-route + per-user</span>
           </div>
         </div>
-        <nz-tag nzColor="success">Đang kích hoạt</nz-tag>
+        <nz-tag [nzColor]="status?.redisConnected ? 'success' : 'warning'">
+          Redis {{ status?.redisConnected ? 'connected' : 'offline / fail-open' }}
+        </nz-tag>
       </div>
-
       <div class="sec-body">
         <div class="policy-item">
           <div class="policy-info">
-            <span class="policy-name">Thuật toán Rate Limit</span>
-            <span class="policy-desc">Sliding Window (Cửa sổ trượt thời gian thực)</span>
+            <span class="policy-name">Global RPM</span>
+            <span class="policy-desc">Mỗi Client IP</span>
           </div>
-          <span class="policy-val badge">SlidingWindow</span>
+          <span class="policy-val"><strong>{{ status?.globalRpm || 200 }}</strong> req / phút</span>
         </div>
-
         <div class="policy-item">
           <div class="policy-info">
-            <span class="policy-name">Giới hạn mặc định (Global Limit)</span>
-            <span class="policy-desc">Số lượng yêu cầu tối đa cho mỗi Client IP</span>
+            <span class="policy-name">Policy đang bật</span>
           </div>
-          <span class="policy-val"><strong>200</strong> req / phút</span>
+          <span class="policy-val">{{ status?.activeRatePolicies || 0 }}</span>
         </div>
-
         <div class="policy-item">
-          <div class="policy-info">
-            <span class="policy-name">Hành vi khi vượt ngưỡng</span>
-            <span class="policy-desc">Mã lỗi phản hồi và header Retry-After</span>
-          </div>
-          <span class="policy-val badge-danger">HTTP 429 Too Many Requests</span>
+          <input nz-input [(ngModel)]="rateName" placeholder="Tên policy mới" />
+          <input nz-input type="number" [(ngModel)]="rateRpm" placeholder="RPM" style="width:100px;margin-left:8px" />
+          <button nz-button nzType="primary" (click)="addRate()" style="margin-left:8px">Thêm</button>
         </div>
+        @for (p of status?.ratePolicies || []; track p.id) {
+          <div class="policy-item">
+            <span>{{ p.name }} · {{ p.keyType }} · {{ p.requestsPerMinute }}/phút</span>
+          </div>
+        }
       </div>
     </div>
 
@@ -59,37 +58,64 @@
         <div class="sec-title-wrap">
           <span nz-icon nzType="key" nzTheme="outline" class="sec-icon icon-jwt"></span>
           <div>
-            <h3 class="sec-title">Xác Thực JWT Tập Trung (Central JWT Auth)</h3>
-            <span class="sec-sub">Kiểm tra chữ ký số token RSA256 qua chuẩn JWKS</span>
+            <h3 class="sec-title">JWT / JWKS</h3>
+            <span class="sec-sub">Xác thực RS256 tại cổng trước khi forward</span>
           </div>
         </div>
-        <nz-tag nzColor="processing">OIDC Compliant</nz-tag>
+        <nz-tag [nzColor]="status?.jwksReachable ? 'success' : 'error'">
+          JWKS {{ status?.jwksReachable ? 'OK' : 'lỗi' }}
+        </nz-tag>
       </div>
-
       <div class="sec-body">
         <div class="policy-item">
           <div class="policy-info">
-            <span class="policy-name">Cổng Identity Provider</span>
-            <span class="policy-desc">Central Auth Service</span>
+            <span class="policy-name">Issuer</span>
           </div>
-          <span class="policy-val mono">http://localhost:5000</span>
+          <span class="policy-val mono">{{ status?.issuer }}</span>
         </div>
-
         <div class="policy-item">
           <div class="policy-info">
-            <span class="policy-name">Cổng cấp phát JWKS Endpoint</span>
-            <span class="policy-desc">Public Key Endpoint</span>
+            <span class="policy-name">Audience</span>
           </div>
-          <span class="policy-val mono">/.well-known/jwks.json</span>
+          <span class="policy-val mono">{{ status?.audience }}</span>
         </div>
-
         <div class="policy-item">
           <div class="policy-info">
-            <span class="policy-name">Audience & Issuer</span>
-            <span class="policy-desc">Định danh hệ sinh thái ERP</span>
+            <span class="policy-name">JWKS</span>
+            <span class="policy-desc">{{ status?.jwksKeyCount || 0 }} key(s)</span>
           </div>
-          <span class="policy-val mono">erp-ecosystem / auth.company.com</span>
+          <span class="policy-val mono">{{ status?.jwksUrl }}</span>
         </div>
+        @if (status?.jwksError) {
+          <div class="policy-item">
+            <span class="policy-desc">{{ status.jwksError }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="sec-card full-width">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <span nz-icon nzType="stop" nzTheme="outline" class="sec-icon"></span>
+          <div>
+            <h3 class="sec-title">IP allow / deny</h3>
+            <span class="sec-sub">{{ status?.activeIpRules || 0 }} rule đang bật. Deny thắng nếu khớp.</span>
+          </div>
+        </div>
+      </div>
+      <div class="sec-body">
+        <div class="policy-item">
+          <input nz-input [(ngModel)]="ipCidr" placeholder="CIDR ví dụ 10.0.0.0/8 hoặc 1.2.3.4" />
+          <input nz-input [(ngModel)]="ipDescription" placeholder="Mô tả" style="margin-left:8px" />
+          <button nz-button nzDanger (click)="addIpDeny()" style="margin-left:8px">Deny IP</button>
+        </div>
+        @for (rule of status?.ipRules || []; track rule.id) {
+          <div class="policy-item">
+            <span>{{ rule.action }} {{ rule.cidr }} — {{ rule.description || '' }}</span>
+            <button nz-button nzType="link" nzDanger (click)="removeIp(rule.id)">Xóa</button>
+          </div>
+        }
       </div>
     </div>
 
@@ -98,39 +124,46 @@
         <div class="sec-title-wrap">
           <span nz-icon nzType="global" nzTheme="outline" class="sec-icon icon-cors"></span>
           <div>
-            <h3 class="sec-title">Danh Sách Nguồn Gốc Cho Phép (CORS Allowed Origins)</h3>
-            <span class="sec-sub">Các cổng ứng dụng Frontend được phép gọi API qua Gateway</span>
+            <h3 class="sec-title">CORS allowed origins</h3>
           </div>
         </div>
       </div>
-
       <div class="sec-body">
         <div class="origins-chips">
-          <div class="origin-chip">
-            <span class="chip-app">HRM Admin UI</span>
-            <span class="chip-url">http://localhost:4200</span>
-          </div>
-          <div class="origin-chip">
-            <span class="chip-app">Central Auth Portal</span>
-            <span class="chip-url">http://localhost:4300</span>
-          </div>
-          <div class="origin-chip">
-            <span class="chip-app">Integration Hub Admin</span>
-            <span class="chip-url">http://localhost:4400</span>
-          </div>
-          <div class="origin-chip">
-            <span class="chip-app">API Gateway Control Center</span>
-            <span class="chip-url">http://localhost:4500</span>
-          </div>
-          <div class="origin-chip">
-            <span class="chip-app">Control Tower (Admin Portal)</span>
-            <span class="chip-url">http://localhost:3000</span>
-          </div>
-          <div class="origin-chip">
-            <span class="chip-app">Gateway Direct API</span>
-            <span class="chip-url">http://localhost:8000</span>
+          @for (origin of status?.allowedOrigins || []; track origin) {
+            <div class="origin-chip">
+              <span class="chip-url">{{ origin }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-card full-width">
+      <div class="sec-header">
+        <div class="sec-title-wrap">
+          <span nz-icon nzType="tool" nzTheme="outline" class="sec-icon"></span>
+          <div>
+            <h3 class="sec-title">Maintenance window</h3>
+            <span class="sec-sub">Drain service — Gateway trả 503 kèm message</span>
           </div>
         </div>
+      </div>
+      <div class="sec-body">
+        <div class="policy-item">
+          <select [(ngModel)]="maintServiceId">
+            @for (s of status?.services || []; track s.id) {
+              <option [ngValue]="s.id">{{ s.code }} — {{ s.name }}</option>
+            }
+          </select>
+          <input nz-input [(ngModel)]="maintMessage" placeholder="Message" style="margin-left:8px;min-width:240px" />
+          <button nz-button nzDanger (click)="startMaintenance()" style="margin-left:8px">Bật bảo trì</button>
+        </div>
+        @for (m of status?.maintenance || []; track m.id) {
+          <div class="policy-item">
+            <span>{{ m.serviceCode }} · {{ m.message }} · {{ m.isActive ? 'active' : 'off' }}</span>
+          </div>
+        }
       </div>
     </div>
   </div>

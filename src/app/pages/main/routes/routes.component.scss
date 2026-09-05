@@ -43,6 +43,16 @@
         gap: 6px;
         font-weight: 600;
         border-radius: 8px;
+
+        &.main-action {
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+          border-color: #1d4ed8;
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+
+          &:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+          }
+        }
       }
     }
   }
@@ -70,9 +80,6 @@
         border-radius: 8px;
         height: 38px;
       }
-
-      .search-icon { color: #94a3b8; }
-      .clear-icon { color: #94a3b8; cursor: pointer; &:hover { color: #64748b; } }
     }
 
     .filter-chips-group {
@@ -108,62 +115,343 @@
     }
 
     .view-switch-box {
-      ::ng-deep .ant-radio-group {
-        display: flex;
+      .quick-add-btn {
+        border-radius: 6px;
+        font-weight: 500;
       }
     }
   }
 
-  /* 3. CARDS GRID */
+  /* 3. SERVICES CARDS GRID */
+  .services-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+
+    .service-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      position: relative;
+
+      &:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.08);
+        transform: translateY(-2px);
+      }
+
+      &.inactive {
+        opacity: 0.72;
+        background: #fafafa;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 14px;
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .service-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: #eff6ff;
+            color: #2563eb;
+
+            &.theme-auth { background: #fef2f2; color: #dc2626; }
+            &.theme-hrm { background: #ecfdf5; color: #059669; }
+            &.theme-hub { background: #faf5ff; color: #9333ea; }
+            &.theme-wms { background: #fffbeb; color: #d97706; }
+            &.theme-ai { background: #f0fdf4; color: #16a34a; }
+            &.theme-tms { background: #f0f9ff; color: #0284c7; }
+          }
+
+          .service-name-box {
+            .code-row {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              margin-bottom: 4px;
+
+              .service-code-badge {
+                font-family: monospace;
+                font-size: 11.5px;
+                font-weight: 700;
+                color: #1e40af;
+                background: #dbeafe;
+                padding: 1px 6px;
+                border-radius: 4px;
+                text-transform: uppercase;
+              }
+            }
+
+            .service-name {
+              font-size: 15px;
+              font-weight: 700;
+              color: #0f172a;
+              margin: 0;
+              line-height: 1.3;
+            }
+          }
+        }
+      }
+
+      .card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 14px;
+
+        .info-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 10px;
+          background: #f8fafc;
+          border-radius: 6px;
+          font-size: 12.5px;
+          transition: background 0.15s;
+
+          &:hover {
+            background: #f1f5f9;
+
+            .copy-hint-icon {
+              opacity: 1;
+            }
+          }
+
+          .info-label {
+            font-weight: 600;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 80px;
+          }
+
+          .info-value {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #334155;
+
+            &.link-text {
+              color: #2563eb;
+              font-weight: 500;
+            }
+
+            &.code-font {
+              font-family: monospace;
+              font-size: 12px;
+            }
+          }
+
+          .copy-hint-icon {
+            opacity: 0;
+            color: #94a3b8;
+            transition: opacity 0.15s;
+          }
+        }
+
+        .service-desc {
+          margin: 4px 0 0 0;
+          font-size: 12.5px;
+          color: #64748b;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .gateway-linkage-box {
+          margin-top: 6px;
+          padding-top: 8px;
+          border-top: 1px dashed #e2e8f0;
+
+          .linkage-title {
+            display: block;
+            font-size: 11.5px;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 6px;
+          }
+
+          .linkage-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+
+            .linkage-chip {
+              display: inline-flex;
+              align-items: center;
+              gap: 4px;
+              font-size: 11.5px;
+              padding: 2px 8px;
+              border-radius: 4px;
+
+              &.cluster-chip {
+                background: #f1f5f9;
+                color: #475569;
+                font-family: monospace;
+              }
+
+              &.route-chip {
+                background: #eff6ff;
+                color: #1d4ed8;
+                font-family: monospace;
+              }
+
+              &.not-found {
+                background: #fef2f2;
+                color: #b91c1c;
+              }
+            }
+          }
+        }
+      }
+
+      .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
+
+        .test-health-link {
+          font-size: 12px;
+          color: #2563eb;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        .footer-right {
+          display: flex;
+          gap: 6px;
+
+          .action-link-btn {
+            font-size: 12px;
+            border-radius: 4px;
+
+            &.delete-btn {
+              &:hover {
+                background: #fef2f2;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* 4. EMPTY STATE */
+  .empty-state-box {
+    text-align: center;
+    background: #ffffff;
+    border: 2px dashed #e2e8f0;
+    border-radius: 16px;
+    padding: 48px 24px;
+    max-width: 540px;
+    margin: 32px auto;
+
+    .empty-icon-wrap {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px auto;
+      background: #eff6ff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #2563eb;
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 13.5px;
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+  }
+
+  /* 5. ROUTES CARDS GRID */
   .routes-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 16px;
 
     .route-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 16px;
+      cursor: pointer;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+      justify-content: space-between;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
       &:hover {
+        border-color: #2563eb;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
-        border-color: #cbd5e1;
       }
 
-      /* Card Header */
       .card-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        gap: 8px;
+        margin-bottom: 12px;
 
         .header-left {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
           .cluster-badge {
-            font-size: 11px;
-            font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
             padding: 2px 8px;
-            border-radius: 6px;
-            background: #dbeafe;
-            color: #1d4ed8;
-            width: fit-content;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #475569;
+            margin-bottom: 6px;
           }
 
           .route-id {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: #0f172a;
             margin: 0;
@@ -172,55 +460,47 @@
 
         .header-right {
           .method-tag {
-            font-family: monospace;
             font-size: 11px;
             font-weight: 700;
-            background: #f1f5f9;
-            color: #334155;
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
+            background: #f8fafc;
             border: 1px solid #e2e8f0;
+            color: #475569;
           }
         }
       }
 
-      /* Cluster Theming */
-      &.theme-auth .cluster-badge { background: #fef3c7; color: #b45309; }
-      &.theme-hrm .cluster-badge { background: #dcfce7; color: #15803d; }
-      &.theme-hub .cluster-badge { background: #e0f2fe; color: #0369a1; }
-      &.theme-wms .cluster-badge { background: #ccfbf1; color: #0f766e; }
-      &.theme-ai .cluster-badge { background: #e0f2fe; color: #0284c7; }
-      &.theme-tms .cluster-badge { background: #ffedd5; color: #c2410c; }
-
-      /* Card Body */
       .card-body {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+        margin-bottom: 12px;
 
         .path-box {
           background: #f8fafc;
-          border: 1px dashed #cbd5e1;
-          padding: 8px 10px;
+          border: 1px solid #e2e8f0;
           border-radius: 6px;
+          padding: 8px 10px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 8px;
+          gap: 6px;
+          margin-bottom: 12px;
           cursor: pointer;
-          transition: all 0.2s;
 
           &:hover {
             background: #f1f5f9;
-            border-color: #2563eb;
-            .copy-icon { color: #2563eb; }
+          }
+
+          .path-label {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
           }
 
           .path-text {
-            font-family: 'Fira Code', monospace, Consolas;
-            font-size: 12px;
-            font-weight: 600;
+            font-family: monospace;
+            font-size: 12.5px;
             color: #2563eb;
+            font-weight: 600;
+            flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -228,7 +508,6 @@
 
           .copy-icon {
             color: #94a3b8;
-            font-size: 13px;
           }
         }
 
@@ -236,37 +515,32 @@
           display: flex;
           flex-direction: column;
           gap: 6px;
-          font-size: 12px;
 
           .meta-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 12.5px;
 
             .meta-label {
               color: #64748b;
             }
 
             .meta-value {
+              font-weight: 500;
               color: #334155;
-              font-weight: 600;
-
-              &.destination {
-                font-family: monospace;
-                color: #475569;
-              }
             }
 
             .auth-policy-tag {
               display: inline-flex;
               align-items: center;
               gap: 4px;
-              font-size: 11px;
+              font-size: 11.5px;
               font-weight: 600;
-              padding: 1px 7px;
+              padding: 2px 6px;
               border-radius: 4px;
-              background: #dcfce7;
-              color: #166534;
+              background: #ecfdf5;
+              color: #059669;
 
               &.anonymous {
                 background: #f1f5f9;
@@ -277,62 +551,47 @@
         }
       }
 
-      /* Card Footer */
       .card-footer {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 10px;
+        padding-top: 8px;
         border-top: 1px solid #f1f5f9;
-        margin-top: auto;
 
-        .forward-indicator {
+        .edit-hint {
           font-size: 11.5px;
-          font-weight: 500;
-          color: #10b981;
+          color: #94a3b8;
           display: flex;
           align-items: center;
           gap: 4px;
-
-          .arrow-icon { color: #10b981; }
         }
 
-        .copy-btn {
-          font-size: 11.5px;
-          color: #64748b;
-          &:hover { color: #2563eb; }
+        .action-link-btn {
+          font-size: 12px;
         }
       }
     }
   }
 
-  /* 4. PAGINATION WRAPPER */
-  .pagination-wrapper {
-    display: flex;
-    justify-content: center;
-    padding: 16px 0;
-  }
-
-  /* 5. CLUSTERS GRID (TAB 2) */
+  /* 6. CLUSTERS GRID */
   .clusters-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 16px;
+    margin-bottom: 20px;
 
     .cluster-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
       .cluster-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 12px;
 
         .cluster-id-box {
           display: flex;
@@ -340,14 +599,14 @@
           gap: 10px;
 
           .cluster-icon-wrap {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: #dbeafe;
-            color: #1d4ed8;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #eff6ff;
+            color: #2563eb;
             font-size: 18px;
           }
 
@@ -368,12 +627,13 @@
       .destinations-list {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
 
         .dest-title {
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 600;
-          color: #64748b;
+          color: #94a3b8;
+          margin-bottom: 4px;
         }
 
         .dest-item {
@@ -381,48 +641,80 @@
           justify-content: space-between;
           align-items: center;
           background: #f8fafc;
-          padding: 8px 12px;
-          border-radius: 8px;
-          border: 1px solid #f1f5f9;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          padding: 8px 10px;
 
           .dest-left {
             display: flex;
             flex-direction: column;
             gap: 2px;
 
-            .dest-name { font-size: 12px; font-weight: 600; color: #1e293b; }
-            .dest-addr { font-family: monospace; font-size: 11.5px; color: #2563eb; font-weight: 600; }
+            .dest-name {
+              font-size: 11.5px;
+              color: #64748b;
+            }
+
+            .dest-addr {
+              font-family: monospace;
+              font-size: 12.5px;
+              font-weight: 600;
+              color: #2563eb;
+            }
           }
 
           .status-pill {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 12px;
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #059669;
 
-            &.online {
-              background: #dcfce7;
-              color: #15803d;
-              .dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
+            .dot {
+              width: 6px;
+              height: 6px;
+              border-radius: 50%;
+              background: #10b981;
             }
           }
         }
       }
     }
   }
+
+  /* 7. DESTINATION ADD CARD */
+  .destination-add-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      span[nz-icon] {
+        color: #2563eb;
+      }
+    }
+
+    .dest-add-form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+  }
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Dark Mode */
-:host-context(.dark) {
+/* DARK THEME */
+html.dark {
   .routes-page {
     .page-header {
       .page-title { color: #f8fafc; }
@@ -436,10 +728,39 @@
       .filter-chips-group .chip-btn {
         background: #0f172a;
         border-color: #334155;
-        color: #94a3b8;
+        color: #cbd5e1;
 
         &:hover { color: #f8fafc; background: #334155; }
         &.active { background: #2563eb; color: #ffffff; }
+      }
+    }
+
+    .services-cards-grid .service-card {
+      background: #1e293b;
+      border-color: #334155;
+
+      &:hover { border-color: #3b82f6; }
+      &.inactive { background: #162032; }
+
+      .card-header .header-left .service-name-box .service-name {
+        color: #f8fafc;
+      }
+
+      .card-body {
+        .info-row {
+          background: #0f172a;
+          .info-value { color: #e2e8f0; }
+        }
+        .service-desc { color: #94a3b8; }
+        .gateway-linkage-box {
+          border-top-color: #334155;
+          .linkage-chip.cluster-chip { background: #0f172a; color: #cbd5e1; }
+          .linkage-chip.route-chip { background: #1e3a8a; color: #bfdbfe; }
+        }
+      }
+
+      .card-footer {
+        border-top-color: #334155;
       }
     }
 
@@ -462,14 +783,13 @@
         }
         .meta-details .meta-row {
           .meta-label { color: #94a3b8; }
-          .meta-value { color: #e2e8f0; &.destination { color: #cbd5e1; } }
+          .meta-value { color: #e2e8f0; }
           .auth-policy-tag.anonymous { background: #0f172a; color: #94a3b8; }
         }
       }
 
       .card-footer {
         border-color: #334155;
-        .copy-btn { color: #94a3b8; &:hover { color: #60a5fa; } }
       }
     }
 
@@ -481,9 +801,23 @@
       .destinations-list .dest-item {
         background: #0f172a;
         border-color: #334155;
-        .dest-left .dest-name { color: #f8fafc; }
+        .dest-left .dest-name { color: #94a3b8; }
         .dest-left .dest-addr { color: #60a5fa; }
       }
+    }
+
+    .destination-add-card {
+      background: #1e293b;
+      border-color: #334155;
+      h3 { color: #f8fafc; }
+    }
+
+    .empty-state-box {
+      background: #1e293b;
+      border-color: #334155;
+      .empty-icon-wrap { background: #0f172a; }
+      h3 { color: #f8fafc; }
+      p { color: #94a3b8; }
     }
   }
 }

@@ -1,347 +1,460 @@
 .gateway-dashboard {
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
 
-  .dashboard-header {
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    animation: pulse 2s infinite;
+  }
+
+  .badge-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1d4ed8;
+    letter-spacing: 0.5px;
+  }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .title-icon {
+    color: #2563eb;
+  }
+}
+
+.page-subtitle {
+  margin: 6px 0 0 0;
+  font-size: 13px;
+  color: #64748b;
+  max-width: 680px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .auto-refresh-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+
+  .btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+}
+
+/* KPI Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+  }
+
+  .kpi-icon-wrap {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .kpi-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
+
+      small {
+        font-size: 13px;
+        font-weight: 500;
+        color: #64748b;
+      }
+
+      .sub-val {
+        font-size: 13px;
+        font-weight: 400;
+        color: #64748b;
+        margin-left: 4px;
+      }
+    }
+  }
+
+  .kpi-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+  }
+
+  &.card-requests {
+    .kpi-icon-wrap { background: #eff6ff; color: #2563eb; }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  }
+
+  &.card-success {
+    .kpi-icon-wrap { background: #ecfdf5; color: #059669; }
+    .badge-green { background: #d1fae5; color: #065f46; }
+  }
+
+  &.card-latency {
+    .kpi-icon-wrap { background: #fffbeb; color: #d97706; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+  }
+
+  &.card-routes {
+    .kpi-icon-wrap { background: #f5f3ff; color: #7c3aed; }
+    .badge-purple { background: #ede9fe; color: #5b21b6; }
+  }
+}
+
+/* Panels */
+.panel-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
 
-    .page-title {
-      font-size: 20px;
+    .panel-title {
+      font-size: 15px;
       font-weight: 700;
       color: #0f172a;
-      margin: 0;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
 
-      .title-icon {
+      span[nz-icon] {
         color: #2563eb;
-        font-size: 22px;
       }
     }
 
-    .page-subtitle {
-      font-size: 13px;
-      color: #64748b;
-      margin: 4px 0 0 0;
+    .sub-indicator {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .status-tag-pill {
+      font-weight: 700;
+      border-radius: 12px;
     }
   }
 
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 16px;
+  .panel-body {
+    padding: 20px;
+    flex: 1;
+  }
+}
 
-    .kpi-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px 18px;
+/* Charts Grid */
+.charts-row-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.charts-row-2 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 310px;
+}
+
+/* Services Health List */
+.service-health-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.service-health-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  .svc-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .svc-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: #e2e8f0;
+    color: #64748b;
+
+    &.healthy {
+      background: #ecfdf5;
+      color: #059669;
+    }
+  }
+
+  .svc-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .svc-name-row {
       display: flex;
       align-items: center;
-      gap: 14px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      gap: 8px;
 
-      .kpi-icon-wrap {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
+      .svc-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
       }
 
-      &.card-requests .kpi-icon-wrap { background: #eff6ff; color: #3b82f6; }
-      &.card-success .kpi-icon-wrap { background: #ecfdf5; color: #10b981; }
-      &.card-latency .kpi-icon-wrap { background: #fffbeb; color: #f59e0b; }
-      &.card-routes .kpi-icon-wrap { background: #e0f2fe; color: #0284c7; }
-
-      .kpi-info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        flex: 1;
-
-        .kpi-label {
-          font-size: 12.5px;
-          color: #64748b;
-          font-weight: 500;
-        }
-
-        .kpi-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: #0f172a;
-
-          small {
-            font-size: 12px;
-            color: #94a3b8;
-            font-weight: 500;
-          }
-        }
+      .svc-url {
+        font-size: 12px;
+        color: #64748b;
+        background: #ffffff;
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
       }
+    }
 
-      .kpi-badge {
-        position: absolute;
-        top: 10px;
-        right: 12px;
-        font-size: 10.5px;
-        font-weight: 600;
-        padding: 2px 7px;
-        border-radius: 6px;
-
-        &.badge-blue { background: #eff6ff; color: #2563eb; }
-        &.badge-green { background: #ecfdf5; color: #059669; }
-        &.badge-amber { background: #fffbeb; color: #d97706; }
-        &.badge-purple { background: #f5f3ff; color: #7c3aed; }
-      }
+    .svc-desc {
+      font-size: 12px;
+      color: #94a3b8;
     }
   }
 
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 18px;
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
 
-    @media (max-width: 992px) {
-      grid-template-columns: 1fr;
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
     }
 
-    .panel-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-      display: flex;
-      flex-direction: column;
-
-      .panel-header {
-        padding: 14px 18px;
-        border-bottom: 1px solid #f1f5f9;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        .panel-title {
-          font-size: 14.5px;
-          font-weight: 700;
-          color: #1e293b;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-      }
-
-      .panel-body {
-        padding: 16px 18px;
-      }
+    &.status-healthy {
+      background: #ecfdf5;
+      color: #059669;
+      .dot { background: #10b981; }
     }
 
-    .services-health-panel {
-      .service-health-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+    &.status-unhealthy {
+      background: #fef2f2;
+      color: #dc2626;
+      .dot { background: #ef4444; }
+    }
+  }
+}
 
-        .service-health-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 10px 12px;
-          border-radius: 8px;
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
+/* Telemetry & System Meta */
+.sub-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-          .svc-main {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+.empty-slow-routes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+  color: #059669;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
 
-            .svc-icon-box {
-              width: 36px;
-              height: 36px;
-              border-radius: 8px;
-              background: #ffffff;
-              border: 1px solid #cbd5e1;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 18px;
-              color: #4f46e5;
-            }
+  .check-icon {
+    font-size: 18px;
+  }
+}
 
-            .svc-details {
-              display: flex;
-              flex-direction: column;
-              gap: 2px;
+.system-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
 
-              .svc-name-row {
-                display: flex;
-                align-items: center;
-                gap: 8px;
+  .meta-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 
-                .svc-name {
-                  font-size: 13.5px;
-                  font-weight: 600;
-                  color: #1e293b;
-                }
-
-                .svc-url {
-                  font-size: 11.5px;
-                  font-family: monospace;
-                  color: #64748b;
-                  background: #e2e8f0;
-                  padding: 1px 5px;
-                  border-radius: 4px;
-                }
-              }
-
-              .svc-desc {
-                font-size: 11.5px;
-                color: #64748b;
-              }
-            }
-          }
-
-          .svc-status-box {
-            .status-pill {
-              display: inline-flex;
-              align-items: center;
-              gap: 6px;
-              font-size: 12px;
-              font-weight: 600;
-              padding: 3px 10px;
-              border-radius: 20px;
-
-              .dot {
-                width: 7px;
-                height: 7px;
-                border-radius: 50%;
-              }
-
-              &.status-healthy {
-                background: #ecfdf5;
-                color: #059669;
-                .dot { background: #10b981; }
-              }
-
-              &.status-unhealthy {
-                background: #fef2f2;
-                color: #dc2626;
-                .dot { background: #ef4444; }
-              }
-            }
-          }
-        }
-      }
+    .meta-label {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
     }
 
-    .status-distribution-panel {
-      .status-bars {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
+    .meta-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
 
-        .status-bar-row {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
-          .bar-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12.5px;
-            font-weight: 600;
-
-            .status-code {
-              &.code-2xx { color: #059669; }
-              &.code-3xx { color: #2563eb; }
-              &.code-4xx { color: #d97706; }
-              &.code-5xx { color: #dc2626; }
-            }
-
-            .bar-count {
-              color: #64748b;
-            }
-          }
-        }
+      &.accent-blue {
+        color: #2563eb;
+        font-family: monospace;
       }
 
-      .system-meta-box {
-        margin-top: 20px;
-        padding-top: 14px;
-        border-top: 1px solid #e2e8f0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        .meta-item {
-          display: flex;
-          justify-content: space-between;
-          font-size: 12.5px;
-
-          .meta-label {
-            color: #64748b;
-          }
-
-          .meta-value {
-            font-weight: 600;
-            color: #1e293b;
-          }
-        }
+      &.danger {
+        color: #ef4444;
       }
     }
   }
 }
 
-:host-context(.dark) {
-  .gateway-dashboard {
-    .dashboard-header {
-      .page-title { color: #f8fafc; }
-      .page-subtitle { color: #94a3b8; }
-    }
-
-    .kpi-grid .kpi-card {
-      background: #1e293b;
-      border-color: #334155;
-      .kpi-info {
-        .kpi-label { color: #94a3b8; }
-        .kpi-value { color: #f8fafc; }
-      }
-    }
-
-    .dashboard-grid .panel-card {
-      background: #1e293b;
-      border-color: #334155;
-      .panel-header {
-        border-color: #334155;
-        .panel-title { color: #f8fafc; }
-      }
-
-      .services-health-panel .service-health-item {
-        background: #0f172a;
-        border-color: #334155;
-        .svc-main .svc-details .svc-name-row {
-          .svc-name { color: #f8fafc; }
-          .svc-url { background: #1e293b; color: #94a3b8; }
-        }
-      }
-
-      .status-distribution-panel .system-meta-box {
-        border-color: #334155;
-        .meta-item {
-          .meta-label { color: #94a3b8; }
-          .meta-value { color: #f8fafc; }
-        }
-      }
-    }
-  }
+.empty-state-box {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
 }

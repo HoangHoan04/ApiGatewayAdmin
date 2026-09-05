@@ -77,4 +77,18 @@
       </div>
     }
   </div>
+
+  <div class="gateway-core-card" style="margin-top:16px">
+    <div class="core-info">
+      <h3 class="core-title">Thêm / cập nhật downstream service</h3>
+      <p class="core-desc">Lưu vào GatewayDb — health check dùng HealthPath (chỉ 2xx mới Healthy).</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+        <input nz-input [(ngModel)]="serviceForm.code" placeholder="code (auth, hrm, ...)" />
+        <input nz-input [(ngModel)]="serviceForm.name" placeholder="Tên hiển thị" />
+        <input nz-input [(ngModel)]="serviceForm.baseUrl" placeholder="http://localhost:5000" style="min-width:220px" />
+        <input nz-input [(ngModel)]="serviceForm.healthPath" placeholder="/health" />
+        <button nz-button nzType="primary" (click)="saveService()">Lưu service</button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,33 +1,48 @@
 <div class="gateway-dashboard">
+  <!-- Dashboard Top Bar -->
   <div class="dashboard-header">
     <div class="header-title-wrap">
+      <div class="header-badge">
+        <span class="pulse-dot"></span>
+        <span class="badge-text">GATEWAY CONTROL CENTER</span>
+      </div>
       <h2 class="page-title">
         <span nz-icon nzType="dashboard" nzTheme="outline" class="title-icon"></span>
-        <span>Gateway Control Center</span>
+        <span>Giám Sát Lưu Lượng & Hiệu Năng Microservices</span>
       </h2>
       <p class="page-subtitle">
-        Bảng điều khiển lưu lượng, giám sát hiệu năng và trạng thái truyền kết nối Microservices
-        thời gian thực
+        Truy vết thời gian thực reverse-proxy YARP, băng thông API, tỷ lệ phản hồi HTTP và tình trạng sức khỏe kết nối các phân hệ
       </p>
     </div>
     <div class="header-actions">
-      <button nz-button nzType="default" [nzLoading]="loading" (click)="refreshAll()">
+      <div class="auto-refresh-toggle">
+        <span class="toggle-label">Tự động làm mới:</span>
+        <nz-switch [(ngModel)]="autoRefresh" nzSize="small"></nz-switch>
+      </div>
+      <div class="source-tag">
+        <nz-tag [nzColor]="metrics?.source === 'postgres' ? 'processing' : 'default'">
+          <span nz-icon nzType="database" nzTheme="outline"></span>
+          {{ metrics?.source === 'postgres' ? 'PostgreSQL Logs' : 'RAM Buffer' }}
+        </nz-tag>
+      </div>
+      <button nz-button nzType="primary" [nzLoading]="loading" (click)="refreshAll()" class="btn-refresh">
         <span nz-icon nzType="reload" nzTheme="outline"></span>
         Làm mới
       </button>
     </div>
   </div>
 
+  <!-- KPI Cards -->
   <div class="kpi-grid">
     <div class="kpi-card card-requests">
       <div class="kpi-icon-wrap">
         <span nz-icon nzType="swap" nzTheme="outline"></span>
       </div>
       <div class="kpi-info">
-        <span class="kpi-label">Tổng Requests Xử Lý</span>
+        <span class="kpi-label">Tổng Requests (15 phút)</span>
         <span class="kpi-value">{{ metrics?.totalRequests || 0 | number }}</span>
       </div>
-      <div class="kpi-badge badge-blue">YARP Engine</div>
+      <div class="kpi-badge badge-blue">YARP Core</div>
     </div>
 
     <div class="kpi-card card-success">
@@ -36,9 +51,9 @@
       </div>
       <div class="kpi-info">
         <span class="kpi-label">Tỷ Lệ Thành Công</span>
-        <span class="kpi-value">{{ metrics?.successRate || 100 }}%</span>
+        <span class="kpi-value">{{ metrics?.successRate ?? 100 }}%</span>
       </div>
-      <div class="kpi-badge badge-green">Healthy</div>
+      <div class="kpi-badge badge-green">2xx / 3xx</div>
     </div>
 
     <div class="kpi-card card-latency">
@@ -46,10 +61,13 @@
         <span nz-icon nzType="thunderbolt" nzTheme="outline"></span>
       </div>
       <div class="kpi-info">
-        <span class="kpi-label">Độ Trễ Trung Bình</span>
-        <span class="kpi-value">{{ metrics?.avgLatencyMs || 0 }} <small>ms</small></span>
+        <span class="kpi-label">Độ Trễ p95 / Trung Bình</span>
+        <span class="kpi-value">
+          {{ metrics?.p95LatencyMs || 0 }} <small>ms p95</small>
+          <span class="sub-val">/ {{ metrics?.avgLatencyMs || 0 }}ms tb</span>
+        </span>
       </div>
-      <div class="kpi-badge badge-amber">Fast Response</div>
+      <div class="kpi-badge badge-amber">Latency</div>
     </div>
 
     <div class="kpi-card card-routes">
@@ -57,130 +75,150 @@
         <span nz-icon nzType="branches" nzTheme="outline"></span>
       </div>
       <div class="kpi-info">
-        <span class="kpi-label">Định Tuyến & Clusters</span>
-        <span class="kpi-value"
-          >{{ routesCount }} <small>Routes</small> / {{ clustersCount }}
-          <small>Clusters</small></span
-        >
+        <span class="kpi-label">Định Tuyến & Cụm Dịch Vụ</span>
+        <span class="kpi-value">
+          {{ routesCount }} <small>Routes</small>
+          <span class="sub-val">/ {{ clustersCount }} Clusters</span>
+        </span>
       </div>
-      <div class="kpi-badge badge-purple">Active Proxy</div>
+      <div class="kpi-badge badge-purple">Active Topology</div>
     </div>
   </div>
 
-  <div class="dashboard-grid">
+  <!-- Charts Row 1: Throughput & Latency Trend + HTTP Distribution Donut -->
+  <div class="charts-row-1">
+    <div class="panel-card chart-panel-large">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span nz-icon nzType="line-chart" nzTheme="outline"></span>
+          <span>Lưu Lượng Requests & Xu Hướng Độ Trễ (15 Phút Qua)</span>
+        </div>
+        <div class="panel-header-right">
+          <span class="sub-indicator">Cửa sổ trượt: 15 phút</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        @if (throughputOption) {
+          <div echarts [options]="throughputOption" class="echarts-chart" style="height: 310px;"></div>
+        } @else {
+          <div class="chart-empty">
+            <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Chưa có dữ liệu lưu lượng"></nz-empty>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="panel-card chart-panel-small">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span nz-icon nzType="pie-chart" nzTheme="outline"></span>
+          <span>Phân Bổ Mã HTTP (Status Codes)</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        @if (statusDonutOption) {
+          <div echarts [options]="statusDonutOption" class="echarts-chart" style="height: 310px;"></div>
+        } @else {
+          <div class="chart-empty">
+            <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Chưa có phản hồi"></nz-empty>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Microservices Health List + Slow Routes & System Telemetry -->
+  <div class="charts-row-2">
+    <!-- Microservices Health Panel -->
     <div class="panel-card services-health-panel">
       <div class="panel-header">
         <div class="panel-title">
           <span nz-icon nzType="cluster" nzTheme="outline"></span>
           <span>Trạng Thái Sức Khỏe Microservices</span>
         </div>
-        <nz-tag [nzColor]="overallStatusColor">{{
-          healthData?.overallStatus || 'CHECKING'
-        }}</nz-tag>
+        <nz-tag [nzColor]="overallStatusColor" class="status-tag-pill">
+          HỆ THỐNG: {{ healthData?.overallStatus || 'CHECKING' }}
+        </nz-tag>
       </div>
       <div class="panel-body">
-        <div class="service-health-list">
-          @for (svc of healthData?.services; track svc.serviceKey) {
-            <div class="service-health-item">
-              <div class="svc-main">
-                <div class="svc-icon-box">
-                  <span nz-icon [nzType]="svc.icon || 'api'" nzTheme="outline"></span>
-                </div>
-                <div class="svc-details">
-                  <div class="svc-name-row">
-                    <span class="svc-name">{{ svc.name }}</span>
-                    <span class="svc-url">{{ svc.baseUrl }}</span>
+        @if (healthData?.services && healthData!.services.length > 0) {
+          <div class="service-health-list">
+            @for (svc of healthData?.services; track svc.serviceKey) {
+              <div class="service-health-item">
+                <div class="svc-main">
+                  <div class="svc-icon-box" [class.healthy]="svc.status === 'HEALTHY'">
+                    <span nz-icon [nzType]="svc.icon || 'api'" nzTheme="outline"></span>
                   </div>
-                  <span class="svc-desc">{{ svc.description }}</span>
+                  <div class="svc-details">
+                    <div class="svc-name-row">
+                      <span class="svc-name">{{ svc.name }}</span>
+                      <span class="svc-url">{{ svc.baseUrl }}</span>
+                    </div>
+                    <span class="svc-desc">{{ svc.description || 'Microservice kết nối YARP proxy' }}</span>
+                  </div>
+                </div>
+                <div class="svc-status-box">
+                  @if (svc.status === 'HEALTHY') {
+                    <span class="status-pill status-healthy">
+                      <span class="dot"></span> {{ svc.latencyMs }} ms
+                    </span>
+                  } @else {
+                    <span class="status-pill status-unhealthy">
+                      <span class="dot"></span> Chưa sẵn sàng
+                    </span>
+                  }
                 </div>
               </div>
-              <div class="svc-status-box">
-                @if (svc.status === 'HEALTHY') {
-                  <span class="status-pill status-healthy">
-                    <span class="dot"></span> {{ svc.latencyMs }} ms
-                  </span>
-                } @else {
-                  <span class="status-pill status-unhealthy">
-                    <span class="dot"></span> Chưa sẵn sàng
-                  </span>
-                }
-              </div>
-            </div>
-          }
-        </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state-box">
+            <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Chưa có thông tin microservices"></nz-empty>
+          </div>
+        }
       </div>
     </div>
 
-    <div class="panel-card status-distribution-panel">
+    <!-- Slow Routes & System Telemetry Panel -->
+    <div class="panel-card telemetry-panel">
       <div class="panel-header">
         <div class="panel-title">
-          <span nz-icon nzType="pie-chart" nzTheme="outline"></span>
-          <span>Phân Bổ Mã Phản Hồi (HTTP Status)</span>
+          <span nz-icon nzType="field-time" nzTheme="outline"></span>
+          <span>Hiệu Năng Endpoints & Tài Nguyên Gateway</span>
         </div>
       </div>
       <div class="panel-body">
-        <div class="status-bars">
-          <div class="status-bar-row">
-            <div class="bar-label">
-              <span class="status-code code-2xx">2xx (Thành công)</span>
-              <span class="bar-count">{{ metrics?.statusDistribution?.['2xx'] || 0 }}</span>
-            </div>
-            <nz-progress
-              [nzPercent]="calcPercent(metrics?.statusDistribution?.['2xx'])"
-              [nzStrokeColor]="'#10b981'"
-              [nzShowInfo]="false"
-            ></nz-progress>
+        @if (slowRoutesOption) {
+          <div class="sub-section-title">
+            <span nz-icon nzType="warning" nzTheme="outline"></span>
+            Endpoints Có Độ Trễ Cao Nhất (p95)
           </div>
+          <div echarts [options]="slowRoutesOption" class="echarts-chart" style="height: 180px;"></div>
+        } @else {
+          <div class="empty-slow-routes">
+            <span nz-icon nzType="check-circle" nzTheme="outline" class="check-icon"></span>
+            <span>Không có endpoint nào bị nghẽn độ trễ bất thường trong 15 phút qua</span>
+          </div>
+        }
 
-          <div class="status-bar-row">
-            <div class="bar-label">
-              <span class="status-code code-3xx">3xx (Chuyển hướng)</span>
-              <span class="bar-count">{{ metrics?.statusDistribution?.['3xx'] || 0 }}</span>
-            </div>
-            <nz-progress
-              [nzPercent]="calcPercent(metrics?.statusDistribution?.['3xx'])"
-              [nzStrokeColor]="'#3b82f6'"
-              [nzShowInfo]="false"
-            ></nz-progress>
+        <div class="system-meta-grid">
+          <div class="meta-card">
+            <span class="meta-label">Cổng Lắng Nghe</span>
+            <span class="meta-value accent-blue">http://localhost:8000</span>
           </div>
-
-          <div class="status-bar-row">
-            <div class="bar-label">
-              <span class="status-code code-4xx">4xx (Lỗi Client)</span>
-              <span class="bar-count">{{ metrics?.statusDistribution?.['4xx'] || 0 }}</span>
-            </div>
-            <nz-progress
-              [nzPercent]="calcPercent(metrics?.statusDistribution?.['4xx'])"
-              [nzStrokeColor]="'#f59e0b'"
-              [nzShowInfo]="false"
-            ></nz-progress>
-          </div>
-
-          <div class="status-bar-row">
-            <div class="bar-label">
-              <span class="status-code code-5xx">5xx (Lỗi Server / Gateway)</span>
-              <span class="bar-count">{{ metrics?.statusDistribution?.['5xx'] || 0 }}</span>
-            </div>
-            <nz-progress
-              [nzPercent]="calcPercent(metrics?.statusDistribution?.['5xx'])"
-              [nzStrokeColor]="'#ef4444'"
-              [nzShowInfo]="false"
-            ></nz-progress>
-          </div>
-        </div>
-
-        <div class="system-meta-box">
-          <div class="meta-item">
-            <span class="meta-label">Cổng Lắng Nghe:</span>
-            <span class="meta-value">http://localhost:8000</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Bộ Nhớ RAM:</span>
+          <div class="meta-card">
+            <span class="meta-label">Bộ Nhớ RAM</span>
             <span class="meta-value">{{ metrics?.memoryUsageMb || 0 }} MB</span>
           </div>
-          <div class="meta-item">
-            <span class="meta-label">Thời Gian Hoạt Động:</span>
+          <div class="meta-card">
+            <span class="meta-label">Thời Gian Hoạt Động</span>
             <span class="meta-value">{{ formatUptime(metrics?.uptimeSeconds) }}</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-label">Tỷ Lệ Lỗi 5xx</span>
+            <span class="meta-value" [class.danger]="(metrics?.errorRate || 0) > 0">
+              {{ metrics?.errorRate || 0 }}%
+            </span>
           </div>
         </div>
       </div>

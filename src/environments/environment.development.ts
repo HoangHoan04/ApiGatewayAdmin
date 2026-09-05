@@ -4,6 +4,6 @@ export const environment = {
   authUrl: 'http://localhost:4300',
   authApiUrl: 'http://localhost:8000/api',
   ssoLoginUrl: 'http://localhost:4300/auth/sso',
-  clientId: 'api-gateway',
+  clientId: 'api-gateway-845b84',
   storageUrl: 'http://localhost:8000/api/storage',
 };

@@ -7,29 +7,61 @@ export interface GatewayMetricsDto {
   totalRequests: number;
   successRate: number;
   avgLatencyMs: number;
+  p95LatencyMs?: number;
+  errorRate?: number;
   statusDistribution: Record<string, number>;
+  topSlowRoutes?: Array<{ path: string; count: number; avgMs: number; p95Ms: number }>;
+  timeline?: Array<{ time: string; requests: number; avgLatencyMs: number }>;
   uptimeSeconds: number;
   memoryUsageMb: number;
   serverTime: string;
+  windowMinutes?: number;
+  source?: string;
 }
 
 export interface GatewayRouteDto {
+  id?: string;
   routeId: string;
   clusterId: string;
+  clusterPk?: string;
   pathMatch: string;
   methods: string[];
   authorizationPolicy: string;
   rateLimiterPolicy: string;
+  rateLimitPolicyId?: string;
   timeout?: number;
+  isPublic?: boolean;
+  isActive?: boolean;
+  sortOrder?: number;
+  transformsJson?: string;
 }
 
 export interface GatewayClusterDto {
+  id?: string;
   clusterId: string;
+  serviceId?: string;
+  timeoutSeconds?: number;
+  circuitBreakerEnabled?: boolean;
+  isActive?: boolean;
   destinations: Array<{
+    id?: string;
     name: string;
     address: string;
     health?: string;
+    weight?: number;
+    isActive?: boolean;
   }>;
+}
+
+export interface GatewayServiceItemDto {
+  id?: string;
+  code: string;
+  name: string;
+  baseUrl: string;
+  healthPath?: string;
+  description?: string;
+  icon?: string;
+  isActive?: boolean;
 }
 
 export interface GatewayRoutesResponse {
@@ -37,6 +69,8 @@ export interface GatewayRoutesResponse {
   totalClusters: number;
   routes: GatewayRouteDto[];
   clusters: GatewayClusterDto[];
+  services?: GatewayServiceItemDto[];
+  ratePolicies?: any[];
 }
 
 export interface ServiceHealthDto {
@@ -111,6 +145,66 @@ export class GatewayManagementService {
 
   getRoutes(): Observable<GatewayRoutesResponse> {
     return this.http.post<GatewayRoutesResponse>(`${this.baseUrl}/api/gateway/routes/list`, {});
+  }
+
+  getSecurityStatus(): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/gateway/security/status`, {});
+  }
+
+  upsertRoute(body: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/routes/upsert`, body);
+  }
+
+  deleteRoute(id: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/routes/delete`, { id });
+  }
+
+  setRouteActive(id: string, isActive: boolean): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/routes/set-active`, { id, isActive });
+  }
+
+  testRoute(body: { method: string; path: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/routes/test`, body);
+  }
+
+  upsertRatePolicy(body: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/rate-policies/upsert`, body);
+  }
+
+  deleteRatePolicy(id: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/rate-policies/delete`, { id });
+  }
+
+  upsertIpRule(body: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/ip-rules/upsert`, body);
+  }
+
+  deleteIpRule(id: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/ip-rules/delete`, { id });
+  }
+
+  upsertMaintenance(body: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/maintenance/upsert`, body);
+  }
+
+  upsertCluster(body: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/clusters/upsert`, body);
+  }
+
+  upsertDestination(body: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/destinations/upsert`, body);
+  }
+
+  deleteDestination(id: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/destinations/delete`, { id });
+  }
+
+  upsertService(body: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/services/upsert`, body);
+  }
+
+  deleteService(id: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/gateway/services/delete`, { id });
   }
 
   getServicesHealth(): Observable<HealthCheckAllResponse> {

@@ -1,0 +1,73 @@
+.route-sheet-form {
+  padding-top: 4px;
+}
+
+.form-section {
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-of-type {
+    border-bottom: none;
+    margin-bottom: 8px;
+    padding-bottom: 0;
+  }
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 14px;
+
+  span[nz-icon] {
+    color: #2563eb;
+    font-size: 16px;
+  }
+}
+
+.sheet-footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 8px;
+
+  .right-actions {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .btn-cancel {
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  .btn-submit {
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+/* DARK MODE */
+html.dark {
+  .form-section {
+    border-bottom-color: #334155;
+  }
+
+  .section-title {
+    color: #f1f5f9;
+  }
+
+  .sheet-footer-actions {
+    border-top-color: #334155;
+  }
+}

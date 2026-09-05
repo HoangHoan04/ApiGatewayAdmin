@@ -35,7 +35,7 @@ export const ROUTES_CONFIG = {
 
   ROUTES: {
     key: 'ROUTES',
-    label: 'Bảng Định Tuyến (YARP)',
+    label: 'Dịch Vụ & Định Tuyến (YARP)',
     path: '/routes',
     icon: 'branches',
   },
